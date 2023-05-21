@@ -1,13 +1,14 @@
+<?xml version="1.0" encoding="utf-8"?>
 <resources>
     <string name="app_name">Cycling tracker</string>
     <string name="start_btn_text">Start</string>
     <string name="history_btn_text">History</string>
+    <string name="username_textfield_text">Username</string>
+    <string name="password_textfield_text">Password</string>
     <string name="login_btn_text">Login</string>
     <string name="logout_btn_text">Log out</string>
     <string name="clear_data_btn_text">Clear data</string>
     <string name="begin_btn_text">Begin</string>
-    <string name="pause_btn_text">Stop</string>
     <string name="stop_btn_text">Stop</string>
-    <string name="username_textfield_text">Username</string>
-    <string name="password_textfield_text">Password</string>
+    <string name="pause_btn_text">Pause</string>
 </resources>

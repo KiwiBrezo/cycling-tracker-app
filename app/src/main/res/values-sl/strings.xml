@@ -1,0 +1,14 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <string name="app_name">Cycling tracker</string>
+    <string name="start_btn_text">Začni</string>
+    <string name="history_btn_text">Zgodovina</string>
+    <string name="username_textfield_text">Username</string>
+    <string name="password_textfield_text">Geslo</string>
+    <string name="login_btn_text">Prijavi se</string>
+    <string name="logout_btn_text">Odjavi se</string>
+    <string name="clear_data_btn_text">Počisti podatke</string>
+    <string name="begin_btn_text">Zaćni</string>
+    <string name="stop_btn_text">Prenehaj</string>
+    <string name="pause_btn_text">Pavza</string>
+</resources>

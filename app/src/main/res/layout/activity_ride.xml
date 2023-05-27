@@ -38,7 +38,7 @@
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
         android:backgroundTint="@color/secondary_normal"
-        android:text="Button"
+        android:text="@string/begin_btn_text"
         app:layout_constraintBottom_toTopOf="@+id/linearLayout"
         app:layout_constraintEnd_toEndOf="parent"
         app:layout_constraintHorizontal_bias="0.5"
@@ -57,7 +57,7 @@
         app:layout_constraintTop_toBottomOf="@+id/start_stop_btn">
 
         <org.osmdroid.views.MapView
-            android:id="@+id/mapview"
+            android:id="@+id/mapview_new"
             android:layout_width="match_parent"
             android:layout_height="match_parent"
             tilesource="Mapnik" />

@@ -34,7 +34,7 @@ class RideActivity : AppCompatActivity() {
 
         setContentView(R.layout.activity_ride)
 
-        map = findViewById<View>(R.id.mapview) as MapView
+        map = findViewById<View>(R.id.mapview_new) as MapView
 
         bindAndSetUpMap();
     }
@@ -57,7 +57,7 @@ class RideActivity : AppCompatActivity() {
         map.onPause() //needed for compass, my location overlays, v6.0.0 and up
     }
 
-    fun bindAndSetUpMap() {
+    private fun bindAndSetUpMap() {
         map.setTileSource(TileSourceFactory.MAPNIK)
         map.setMultiTouchControls(true);
         val mapController = map.controller

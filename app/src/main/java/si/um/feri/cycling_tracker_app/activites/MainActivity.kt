@@ -33,6 +33,9 @@ class MainActivity : AppCompatActivity() {
 
         bindComponents()
 
+        val intent = Intent(this, LoginActivity::class.java)
+        startActivity(intent)
+
         /*when {
             ContextCompat.checkSelfPermission(
                 this,

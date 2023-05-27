@@ -2,6 +2,12 @@
 <manifest xmlns:android="http://schemas.android.com/apk/res/android"
     xmlns:tools="http://schemas.android.com/tools">
 
+    <uses-permission android:name="android.permission.ACCESS_FINE_LOCATION"/>
+    <uses-permission android:name="android.permission.ACCESS_COARSE_LOCATION"/>
+    <uses-permission android:name="android.permission.INTERNET" />
+    <uses-permission android:name="android.permission.ACCESS_NETWORK_STATE"  />
+    <uses-permission android:name="android.permission.WRITE_EXTERNAL_STORAGE" />
+
     <application
         android:allowBackup="true"
         android:dataExtractionRules="@xml/data_extraction_rules"
@@ -13,19 +19,19 @@
         tools:replace="android:allowBackup"
         tools:targetApi="31">
         <activity
-            android:name=".ShowRideActivity"
+            android:name=".activites.ShowRideActivity"
             android:exported="false" />
         <activity
-            android:name=".SettingsActivity"
+            android:name=".activites.SettingsActivity"
             android:exported="false" />
         <activity
-            android:name=".RideActivity"
+            android:name=".activites.RideActivity"
             android:exported="false" />
         <activity
-            android:name=".RidesActivity"
+            android:name=".activites.RidesActivity"
             android:exported="false" />
         <activity
-            android:name=".LoginActivity"
+            android:name=".activites.LoginActivity"
             android:exported="false" />
         <activity
             android:name=".activites.MainActivity"

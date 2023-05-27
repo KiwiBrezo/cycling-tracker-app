@@ -9,7 +9,7 @@
     tools:context=".activites.MainActivity">
 
     <ImageView
-        android:id="@+id/settings_btn"
+        android:id="@+id/settings_btn_main"
         android:layout_width="60dp"
         android:layout_height="60dp"
         app:layout_constraintBottom_toBottomOf="parent"

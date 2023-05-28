@@ -1,6 +1,7 @@
 package si.um.feri.cycling_tracker_app.activites
 
 import android.content.Context
+import android.content.Intent
 import android.os.Build
 import android.os.Bundle
 import android.os.StrictMode
@@ -91,6 +92,9 @@ class LoginActivity : AppCompatActivity() {
                 putString("user-token", obj["token"])
                 apply()
             }
+
+            val intent = Intent(this, MainActivity::class.java)
+            startActivity(intent)
         }
     }
 }

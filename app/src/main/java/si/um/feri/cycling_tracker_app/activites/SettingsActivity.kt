@@ -1,5 +1,6 @@
 package si.um.feri.cycling_tracker_app.activites
 
+import android.content.Context
 import android.content.Intent
 import androidx.appcompat.app.AppCompatActivity
 import android.os.Bundle
@@ -30,12 +31,23 @@ class SettingsActivity : AppCompatActivity() {
         }
 
         this.logoutBtn.setOnClickListener {
-            // TODO
+            logoutUser()
         }
 
         this.mainOrBackBtn.setOnClickListener {
             val intent = Intent(this, MainActivity::class.java)
             startActivity(intent)
         }
+    }
+
+    private fun logoutUser() {
+        val sharedPref = this.getSharedPreferences("cycling-tracker-app-USER", Context.MODE_PRIVATE)
+        with (sharedPref.edit()) {
+            putString("user-token", "")
+            apply()
+        }
+
+        val intent = Intent(this, LoginActivity::class.java)
+        startActivity(intent)
     }
 }

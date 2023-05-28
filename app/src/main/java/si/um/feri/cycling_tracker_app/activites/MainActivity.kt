@@ -1,5 +1,6 @@
 package si.um.feri.cycling_tracker_app.activites
 
+import android.content.Context
 import android.content.Intent
 import android.os.Build.VERSION.SDK_INT
 import android.os.Bundle
@@ -37,8 +38,13 @@ class MainActivity : AppCompatActivity() {
 
         bindComponents()
 
-        val intent = Intent(this, LoginActivity::class.java)
-        startActivity(intent)
+        val sharedPref = this.getSharedPreferences("cycling-tracker-app-USER", Context.MODE_PRIVATE)
+        val userToken : String? = sharedPref.getString("user-token", "")
+
+        if (userToken!!.isEmpty()) {
+            val intent = Intent(this, LoginActivity::class.java)
+            startActivity(intent)
+        }
 
         /*when {
             ContextCompat.checkSelfPermission(

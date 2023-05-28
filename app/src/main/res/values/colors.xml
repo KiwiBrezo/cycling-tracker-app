@@ -17,4 +17,6 @@
     <color name="secondary_normal">#00ADB5</color>
     <color name="secondary_light">#EEEEEE</color>
     <color name="secondary_dark">#303841</color>
+
+    <color name="stop_color">#AA0913</color>
 </resources>

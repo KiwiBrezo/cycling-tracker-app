@@ -1,10 +1,15 @@
 package si.um.feri.cycling_tracker_app.activites
 
+import android.content.Context
+import android.os.Build
 import android.os.Bundle
+import android.os.StrictMode
 import android.widget.Button
 import android.widget.EditText
 import android.widget.Toast
 import androidx.appcompat.app.AppCompatActivity
+import com.fasterxml.jackson.core.type.TypeReference
+import com.fasterxml.jackson.module.kotlin.jacksonObjectMapper
 import okhttp3.MediaType
 import okhttp3.OkHttpClient
 import okhttp3.Request
@@ -18,6 +23,7 @@ class LoginActivity : AppCompatActivity() {
 
     private val client = OkHttpClient()
     private val jsonMediaType: MediaType? = MediaType.parse("application/json; charset=utf-8")
+    private val mapper = jacksonObjectMapper()
 
     private lateinit var loginBtn : Button
     private lateinit var usernameInput : EditText
@@ -26,6 +32,13 @@ class LoginActivity : AppCompatActivity() {
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         setContentView(R.layout.activity_login)
+
+        if (Build.VERSION.SDK_INT > 8) {
+            val policy = StrictMode.ThreadPolicy.Builder()
+                .permitAll()
+                .build()
+            StrictMode.setThreadPolicy(policy)
+        }
 
         loginBtn = findViewById(R.id.login_btn)
         usernameInput = findViewById(R.id.username_input)
@@ -46,6 +59,7 @@ class LoginActivity : AppCompatActivity() {
 
         if (userneme.isEmpty() || password.isEmpty()) {
             Toast.makeText(this, "There is no username or password", Toast.LENGTH_SHORT).show()
+            return
         }
 
         val jsonObject = JSONObject()
@@ -69,7 +83,14 @@ class LoginActivity : AppCompatActivity() {
                 return
             }
 
-            println(response.body()!!.string())
+            val resposnseString : String = response.body()!!.string()
+            val obj : HashMap<String, String> = mapper.readValue(resposnseString, object : TypeReference<HashMap<String, String>>() {})
+
+            val sharedPref = this.getSharedPreferences("cycling-tracker-app-USER", Context.MODE_PRIVATE)
+            with (sharedPref.edit()) {
+                putString("user-token", obj["token"])
+                apply()
+            }
         }
     }
 }

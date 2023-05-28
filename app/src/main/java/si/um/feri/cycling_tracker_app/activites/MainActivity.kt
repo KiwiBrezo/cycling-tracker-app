@@ -1,13 +1,17 @@
 package si.um.feri.cycling_tracker_app.activites
 
 import android.content.Intent
-import androidx.appcompat.app.AppCompatActivity
+import android.os.Build.VERSION.SDK_INT
 import android.os.Bundle
+import android.os.StrictMode
+import android.os.StrictMode.ThreadPolicy
 import android.widget.Button
 import android.widget.ImageView
 import android.widget.Toast
 import androidx.activity.result.contract.ActivityResultContracts
+import androidx.appcompat.app.AppCompatActivity
 import si.um.feri.cycling_tracker_app.R
+
 
 class MainActivity : AppCompatActivity() {
 

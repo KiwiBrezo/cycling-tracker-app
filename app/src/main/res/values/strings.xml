@@ -6,7 +6,7 @@
     <string name="logout_btn_text">Log out</string>
     <string name="clear_data_btn_text">Clear data</string>
     <string name="begin_btn_text">Begin</string>
-    <string name="pause_btn_text">Stop</string>
+    <string name="pause_btn_text">Pause</string>
     <string name="stop_btn_text">Stop</string>
     <string name="username_textfield_text">Username</string>
     <string name="password_textfield_text">Password</string>

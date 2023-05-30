@@ -73,6 +73,24 @@ class RideActivity : AppCompatActivity() {
 
         setContentView(R.layout.activity_ride)
 
+        if (ActivityCompat.checkSelfPermission(
+                this,
+                Manifest.permission.ACCESS_FINE_LOCATION
+            ) != PackageManager.PERMISSION_GRANTED && ActivityCompat.checkSelfPermission(
+                this,
+                Manifest.permission.ACCESS_COARSE_LOCATION
+            ) != PackageManager.PERMISSION_GRANTED
+        ) {
+            ActivityCompat.requestPermissions(
+                this,
+                arrayOf(
+                    Manifest.permission.ACCESS_FINE_LOCATION,
+                    Manifest.permission.ACCESS_COARSE_LOCATION
+                ),
+                225
+            )
+        }
+
         this.map = findViewById(R.id.mapview_new)
         this.startPauseBtn = findViewById(R.id.start_pause_btn)
         this.stopBtn = findViewById(R.id.stop_btn)
@@ -82,28 +100,7 @@ class RideActivity : AppCompatActivity() {
         this.locationManager = getSystemService(Context.LOCATION_SERVICE) as LocationManager
         this.hasGps = this.locationManager.isProviderEnabled(LocationManager.GPS_PROVIDER)
 
-
         if (hasGps) {
-            if (ActivityCompat.checkSelfPermission(
-                    this,
-                    Manifest.permission.ACCESS_FINE_LOCATION
-                ) != PackageManager.PERMISSION_GRANTED && ActivityCompat.checkSelfPermission(
-                    this,
-                    Manifest.permission.ACCESS_COARSE_LOCATION
-                ) != PackageManager.PERMISSION_GRANTED
-            ) {
-                ActivityCompat.requestPermissions(
-                    this,
-                    arrayOf(
-                        Manifest.permission.ACCESS_FINE_LOCATION,
-                        Manifest.permission.ACCESS_COARSE_LOCATION
-                    ),
-                    225
-                )
-                //Toast.makeText(this, "You need this for the app to work!", Toast.LENGTH_SHORT).show()
-                //return
-            }
-
             this.locationManager.requestLocationUpdates(
                 LocationManager.GPS_PROVIDER,
                 900,
@@ -142,13 +139,21 @@ class RideActivity : AppCompatActivity() {
         stopTimer()
     }
 
+    @SuppressLint("MissingPermission")
     private fun bindAndSetUpMap() {
         map.setTileSource(TileSourceFactory.MAPNIK)
         map.setMultiTouchControls(true);
         val mapController = map.controller
-        mapController.setZoom(16)
-        val startPoint = GeoPoint(48.8583, 2.2944)
-        mapController.setCenter(startPoint)
+        mapController.setZoom(18)
+        val userGeoLocation = GeoPoint(this.locationManager.getLastKnownLocation(LocationManager.GPS_PROVIDER)!!.latitude,
+                                       this.locationManager.getLastKnownLocation(LocationManager.GPS_PROVIDER)!!.longitude)
+        if (userGeoLocation != null) {
+            val userMarker = Marker(this.map)
+            userMarker.position = userGeoLocation
+            userMarker.setAnchor(Marker.ANCHOR_CENTER, Marker.ANCHOR_BOTTOM)
+            map.overlays.add(userMarker)
+            map.controller.animateTo(userGeoLocation)
+        }
     }
 
     private fun bindButtons() {

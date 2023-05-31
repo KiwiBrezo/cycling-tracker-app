@@ -4,6 +4,9 @@ import android.Manifest
 import android.annotation.SuppressLint
 import android.content.Context
 import android.content.pm.PackageManager
+import android.graphics.Bitmap
+import android.graphics.drawable.BitmapDrawable
+import android.graphics.drawable.Drawable
 import android.location.Location
 import android.location.LocationListener
 import android.location.LocationManager
@@ -14,6 +17,7 @@ import android.preference.PreferenceManager
 import android.view.View
 import android.widget.Button
 import android.widget.ImageView
+import android.widget.Toast
 import androidx.appcompat.app.AppCompatActivity
 import androidx.core.app.ActivityCompat
 import androidx.core.content.ContextCompat
@@ -36,6 +40,8 @@ class RideActivity : AppCompatActivity() {
     private lateinit var settingsBtn : ImageView
     private lateinit var locationManager: LocationManager
 
+    private lateinit var locationMarker : Drawable
+
     private var currentLocation: Location? = null
 
     private val mInterval = 1000 // 1 second in this case
@@ -56,22 +62,9 @@ class RideActivity : AppCompatActivity() {
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
-
         Configuration.getInstance().load(this, PreferenceManager.getDefaultSharedPreferences(this))
-        //setting this before the layout is inflated is a good idea
-        //it 'should' ensure that the map has a writable location for the map cache, even without permissions
-        //if no tiles are displayed, you can try overriding the cache path using Configuration.getInstance().setCachePath
-        //see also StorageUtils
-        //note, the load method also sets the HTTP User Agent to your application's package name, abusing osm's tile servers will get you banned based on this string
-
-        //inflate and create the map
-        //setting this before the layout is inflated is a good idea
-        //it 'should' ensure that the map has a writable location for the map cache, even without permissions
-        //if no tiles are displayed, you can try overriding the cache path using Configuration.getInstance().setCachePath
-        //see also StorageUtils
-        //note, the load method also sets the HTTP User Agent to your application's package name, abusing osm's tile servers will get you banned based on this string
-
         setContentView(R.layout.activity_ride)
+
 
         if (ActivityCompat.checkSelfPermission(
                 this,
@@ -112,26 +105,22 @@ class RideActivity : AppCompatActivity() {
         timer.text = "00:00:00"
         stopBtn.visibility = View.GONE;
 
+        val dr = getDrawable(R.drawable.red_circle_location)
+        val bitmap: Bitmap = (dr as BitmapDrawable).bitmap
+        locationMarker = BitmapDrawable(resources, Bitmap.createScaledBitmap(bitmap, 35, 24, true));
+
         bindAndSetUpMap()
         bindButtons()
     }
 
     override fun onResume() {
         super.onResume()
-        //this will refresh the osmdroid configuration on resuming.
-        //if you make changes to the configuration, use
-        //SharedPreferences prefs = PreferenceManager.getDefaultSharedPreferences(this);
-        //Configuration.getInstance().load(this, PreferenceManager.getDefaultSharedPreferences(this));
-        map.onResume() //needed for compass, my location overlays, v6.0.0 and up
+        map.onResume()
     }
 
     override fun onPause() {
         super.onPause()
-        //this will refresh the osmdroid configuration on resuming.
-        //if you make changes to the configuration, use
-        //SharedPreferences prefs = PreferenceManager.getDefaultSharedPreferences(this);
-        //Configuration.getInstance().save(this, prefs);
-        map.onPause() //needed for compass, my location overlays, v6.0.0 and up
+        map.onPause()
     }
 
     override fun onDestroy() {
@@ -144,7 +133,7 @@ class RideActivity : AppCompatActivity() {
         map.setTileSource(TileSourceFactory.MAPNIK)
         map.setMultiTouchControls(true);
         val mapController = map.controller
-        mapController.setZoom(18)
+        mapController.setZoom(19)
         val userGeoLocation = GeoPoint(this.locationManager.getLastKnownLocation(LocationManager.GPS_PROVIDER)!!.latitude,
                                        this.locationManager.getLastKnownLocation(LocationManager.GPS_PROVIDER)!!.longitude)
         if (userGeoLocation != null) {
@@ -225,8 +214,7 @@ class RideActivity : AppCompatActivity() {
 
     private fun updateStopWatchView(timeInSeconds: Long) {
         val formattedTime = getFormattedStopWatch((timeInSeconds * 1000))
-        //Log.e("formattedTime", formattedTime)
-        timer.setText(formattedTime)
+        timer.text = formattedTime
     }
 
     fun getFormattedStopWatch(ms: Long): String {
@@ -243,6 +231,8 @@ class RideActivity : AppCompatActivity() {
     }
 
     private fun stopAndResetTimerView() {
+        stopTimer()
+
         timeInSeconds = 0
         startButtonClicked = false
         startPauseBtn.setBackgroundColor(
@@ -254,6 +244,14 @@ class RideActivity : AppCompatActivity() {
         startPauseBtn.setText(R.string.start_btn_text)
         timer.text = "00:00:00"
         stopBtn.visibility = View.GONE;
+
+        map.overlays.forEach {
+            if (it is Marker) {
+                map.overlays.remove(it)
+            }
+        }
+
+        Toast.makeText(this, "Ride saved to local database!", Toast.LENGTH_SHORT).show()
     }
 
     @SuppressLint("MissingPermission")
@@ -267,7 +265,8 @@ class RideActivity : AppCompatActivity() {
             val startMarker = Marker(map)
             val geoLocation = GeoPoint(currentLocation!!.latitude, currentLocation!!.longitude)
             startMarker.position = geoLocation
-            startMarker.setAnchor(Marker.ANCHOR_CENTER, Marker.ANCHOR_BOTTOM)
+            startMarker.setAnchor(Marker.ANCHOR_CENTER, Marker.ANCHOR_CENTER)
+            startMarker.icon = locationMarker
             map.overlays.add(startMarker)
             map.controller.animateTo(geoLocation)
         }

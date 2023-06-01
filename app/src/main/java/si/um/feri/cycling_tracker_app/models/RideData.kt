@@ -15,5 +15,9 @@ data class RideData(
 
     val user_id: Int,
 
-    val rideLine: List<List<Double>>
+    val rideLine: List<List<Double>>,
+
+    val isActive: Boolean,
+
+    val isUploaded: Boolean
 ) : Serializable

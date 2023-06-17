@@ -17,5 +17,5 @@ data class RideDataLocation(
 
     val latitude: Double,
 
-    val isUploaded: Boolean
+    val is_uploaded: Int
 ) : Serializable

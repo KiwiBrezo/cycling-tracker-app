@@ -28,6 +28,7 @@ import org.osmdroid.util.GeoPoint
 import org.osmdroid.views.MapView
 import org.osmdroid.views.overlay.Marker
 import si.um.feri.cycling_tracker_app.R
+import si.um.feri.cycling_tracker_app.services.RideManagerService
 import java.util.concurrent.TimeUnit
 
 
@@ -40,6 +41,8 @@ class RideActivity : AppCompatActivity() {
     private lateinit var settingsBtn : ImageView
     private lateinit var locationManager: LocationManager
 
+    private lateinit var rideLocationManager: RideManagerService
+
     private lateinit var locationMarker : Drawable
 
     private var currentLocation: Location? = null
@@ -49,6 +52,7 @@ class RideActivity : AppCompatActivity() {
     private var timeInSeconds = 0L
     private var startButtonClicked = false
     private var hasGps = false
+    private var rideHasStarted = false
 
     private val gpsLocationListener: LocationListener = object : LocationListener {
         override fun onLocationChanged(location: Location) {
@@ -65,6 +69,7 @@ class RideActivity : AppCompatActivity() {
         Configuration.getInstance().load(this, PreferenceManager.getDefaultSharedPreferences(this))
         setContentView(R.layout.activity_ride)
 
+        rideLocationManager = RideManagerService.getInstance(this)
 
         if (ActivityCompat.checkSelfPermission(
                 this,
@@ -108,6 +113,8 @@ class RideActivity : AppCompatActivity() {
         val dr = getDrawable(R.drawable.red_circle_location)
         val bitmap: Bitmap = (dr as BitmapDrawable).bitmap
         locationMarker = BitmapDrawable(resources, Bitmap.createScaledBitmap(bitmap, 35, 24, true));
+
+        rideHasStarted = false
 
         bindAndSetUpMap()
         bindButtons()
@@ -170,6 +177,11 @@ class RideActivity : AppCompatActivity() {
     private fun startTimer() {
         mHandler = Handler(Looper.getMainLooper())
         timerStatusChecker.run()
+        if (!rideHasStarted) {
+            // TODO
+            rideLocationManager.startRideLocation()
+            rideHasStarted = true
+        }
     }
 
     private fun stopTimer() {
@@ -231,6 +243,10 @@ class RideActivity : AppCompatActivity() {
     }
 
     private fun stopAndResetTimerView() {
+        // TODO
+        rideLocationManager.stopRideLocation()
+        rideHasStarted = false
+
         stopTimer()
 
         timeInSeconds = 0
@@ -269,6 +285,9 @@ class RideActivity : AppCompatActivity() {
             startMarker.icon = locationMarker
             map.overlays.add(startMarker)
             map.controller.animateTo(geoLocation)
+
+            // TODO
+            rideLocationManager.saveRideLocation()
         }
     }
 }

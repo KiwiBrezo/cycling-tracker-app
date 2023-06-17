@@ -23,4 +23,7 @@ interface RideDataDao {
 
     @Query("SELECT * FROM ride WHERE ride_id = :rideId")
     fun getRideById(rideId: Int): RideData
+
+    @Query("SELECT * FROM ride WHERE is_active = 1")
+    fun getActiveRide(): RideData
 }

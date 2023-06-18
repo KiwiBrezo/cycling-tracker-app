@@ -23,6 +23,7 @@ class RideManagerService private constructor(context: Context) {
         var newRideData = RideData(
             timeStart = startedTime,
             timeStop = -1L,
+            duration = 0L,
             user_id = userId,
             rideLine = listOf(listOf()),
             is_active = 1,
@@ -38,9 +39,10 @@ class RideManagerService private constructor(context: Context) {
         // TODO
     }
 
-    fun stopRideLocation(rideId: Int, stopedTime: Long): RideData {
+    fun stopRideLocation(rideId: Int, stopedTime: Long, duration: Long): RideData {
         var thisRideData = this.rideDatabase.rideDataDao().getRideById(rideId)
         thisRideData.is_active = 0
+        thisRideData.duration = duration
         thisRideData.timeStop = stopedTime
 
         // TODO need magic for converting the point to the line

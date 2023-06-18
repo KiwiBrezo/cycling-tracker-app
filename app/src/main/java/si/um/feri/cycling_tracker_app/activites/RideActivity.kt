@@ -28,7 +28,10 @@ import org.osmdroid.util.GeoPoint
 import org.osmdroid.views.MapView
 import org.osmdroid.views.overlay.Marker
 import si.um.feri.cycling_tracker_app.R
+import si.um.feri.cycling_tracker_app.models.RideData
+import si.um.feri.cycling_tracker_app.models.UserData
 import si.um.feri.cycling_tracker_app.services.RideManagerService
+import si.um.feri.cycling_tracker_app.utils.AppDatabase
 import java.util.concurrent.TimeUnit
 
 
@@ -42,6 +45,7 @@ class RideActivity : AppCompatActivity() {
     private lateinit var locationManager: LocationManager
 
     private lateinit var rideLocationManager: RideManagerService
+    private lateinit var appDatabase: AppDatabase
 
     private lateinit var locationMarker : Drawable
 
@@ -53,6 +57,9 @@ class RideActivity : AppCompatActivity() {
     private var startButtonClicked = false
     private var hasGps = false
     private var rideHasStarted = false
+
+    private var rideData: RideData? = null
+    private var userData: UserData? = null
 
     private val gpsLocationListener: LocationListener = object : LocationListener {
         override fun onLocationChanged(location: Location) {
@@ -69,7 +76,12 @@ class RideActivity : AppCompatActivity() {
         Configuration.getInstance().load(this, PreferenceManager.getDefaultSharedPreferences(this))
         setContentView(R.layout.activity_ride)
 
-        rideLocationManager = RideManagerService.getInstance(this)
+        this.rideLocationManager = RideManagerService.getInstance(this)
+        this.appDatabase = AppDatabase.getInstance(this)
+        val sharedPref = this.getSharedPreferences("cycling-tracker-app-USER", Context.MODE_PRIVATE)
+        val userToken = sharedPref.getString("user-token", "")
+
+        this.userData = this.appDatabase.userDataDao().getUserDataByToken(userToken!!)
 
         if (ActivityCompat.checkSelfPermission(
                 this,
@@ -179,8 +191,8 @@ class RideActivity : AppCompatActivity() {
         timerStatusChecker.run()
         if (!rideHasStarted) {
             // TODO
-            //rideLocationManager.startRideLocation()
-            rideHasStarted = true
+            this.rideData = this.rideLocationManager.startRideLocation(userData!!.user_id, System.currentTimeMillis())
+            this.rideHasStarted = true
         }
     }
 
@@ -244,7 +256,7 @@ class RideActivity : AppCompatActivity() {
 
     private fun stopAndResetTimerView() {
         // TODO
-        //rideLocationManager.stopRideLocation()
+        rideLocationManager.stopRideLocation(userData!!.user_id, System.currentTimeMillis(), timeInSeconds)
         rideHasStarted = false
 
         stopTimer()

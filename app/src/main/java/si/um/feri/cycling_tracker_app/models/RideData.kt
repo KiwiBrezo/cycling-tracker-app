@@ -13,6 +13,8 @@ data class RideData(
 
     var timeStop: Long,
 
+    var duration: Long,
+
     var user_id: Int,
 
     var rideLine: List<List<Double>>,

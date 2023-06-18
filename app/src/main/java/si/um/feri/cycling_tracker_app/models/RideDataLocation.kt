@@ -9,13 +9,13 @@ data class RideDataLocation(
     @PrimaryKey(autoGenerate = true)
     val location_id: Int = 0,
 
-    val timestamp: Long,
+    var timestamp: Long,
 
-    val ride_id: Int,
+    var ride_id: Int,
 
-    val longitude: Double,
+    var longitude: Double,
 
-    val latitude: Double,
+    var latitude: Double,
 
-    val is_uploaded: Int
+    var is_uploaded: Int
 ) : Serializable

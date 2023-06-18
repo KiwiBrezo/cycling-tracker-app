@@ -9,15 +9,15 @@ data class RideData(
     @PrimaryKey(autoGenerate = true)
     val ride_id: Int = 0,
 
-    val timeStart: Long,
+    var timeStart: Long,
 
-    val timeStop: Long,
+    var timeStop: Long,
 
-    val user_id: Int,
+    var user_id: Int,
 
-    val rideLine: List<List<Double>>,
+    var rideLine: List<List<Double>>,
 
-    val is_active: Int,
+    var is_active: Int,
 
-    val is_uploaded: Int
+    var is_uploaded: Int
 ) : Serializable

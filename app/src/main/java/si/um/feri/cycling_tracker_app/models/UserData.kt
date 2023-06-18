@@ -9,7 +9,7 @@ data class UserData(
     @PrimaryKey(autoGenerate = true)
     val user_id : Int = 0,
 
-    val username : String,
+    var username : String,
 
-    val token : String
+    var token : String
 ) : Serializable

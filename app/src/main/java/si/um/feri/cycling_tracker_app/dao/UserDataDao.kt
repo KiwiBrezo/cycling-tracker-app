@@ -14,6 +14,9 @@ interface UserDataDao {
     @Delete
     fun delete(userData: UserData)
 
+    @Query("SELECT * FROM user")
+    fun getAllUser(): MutableList<UserData>
+
     @Query("SELECT * FROM user WHERE user_id = :userId")
     fun getUserDataById(userId: Int): UserData
 

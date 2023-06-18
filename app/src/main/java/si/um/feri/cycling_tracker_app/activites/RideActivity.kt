@@ -179,7 +179,7 @@ class RideActivity : AppCompatActivity() {
         timerStatusChecker.run()
         if (!rideHasStarted) {
             // TODO
-            rideLocationManager.startRideLocation()
+            //rideLocationManager.startRideLocation()
             rideHasStarted = true
         }
     }
@@ -244,7 +244,7 @@ class RideActivity : AppCompatActivity() {
 
     private fun stopAndResetTimerView() {
         // TODO
-        rideLocationManager.stopRideLocation()
+        //rideLocationManager.stopRideLocation()
         rideHasStarted = false
 
         stopTimer()
@@ -287,7 +287,7 @@ class RideActivity : AppCompatActivity() {
             map.controller.animateTo(geoLocation)
 
             // TODO
-            rideLocationManager.saveRideLocation()
+            //rideLocationManager.saveRideLocation()
         }
     }
 }

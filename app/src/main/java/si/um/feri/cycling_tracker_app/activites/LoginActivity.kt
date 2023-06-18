@@ -18,6 +18,8 @@ import okhttp3.RequestBody
 import org.json.JSONException
 import org.json.JSONObject
 import si.um.feri.cycling_tracker_app.R
+import si.um.feri.cycling_tracker_app.models.UserData
+import si.um.feri.cycling_tracker_app.utils.AppDatabase
 
 
 class LoginActivity : AppCompatActivity() {
@@ -25,6 +27,8 @@ class LoginActivity : AppCompatActivity() {
     private val client = OkHttpClient()
     private val jsonMediaType: MediaType? = MediaType.parse("application/json; charset=utf-8")
     private val mapper = jacksonObjectMapper()
+
+    private lateinit var appDatabase: AppDatabase
 
     private lateinit var loginBtn : Button
     private lateinit var usernameInput : EditText
@@ -41,9 +45,11 @@ class LoginActivity : AppCompatActivity() {
             StrictMode.setThreadPolicy(policy)
         }
 
-        loginBtn = findViewById(R.id.login_btn)
-        usernameInput = findViewById(R.id.username_input)
-        passwordInput = findViewById(R.id.password_input)
+        this.loginBtn = findViewById(R.id.login_btn)
+        this.usernameInput = findViewById(R.id.username_input)
+        this.passwordInput = findViewById(R.id.password_input)
+
+        this.appDatabase = AppDatabase.getInstance(this)
 
         bindComponents()
     }
@@ -92,6 +98,17 @@ class LoginActivity : AppCompatActivity() {
                 putString("user-token", obj["token"])
                 apply()
             }
+
+            this.appDatabase.userDataDao().getAllUser().forEach {
+                this.appDatabase.userDataDao().delete(it)
+            }
+
+            var user = UserData(
+                username = userneme,
+                token = obj["token"]!!
+            )
+
+            this.appDatabase.userDataDao().insert(user)
 
             val intent = Intent(this, MainActivity::class.java)
             startActivity(intent)

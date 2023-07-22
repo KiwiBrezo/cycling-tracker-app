@@ -2,6 +2,7 @@ package si.um.feri.cycling_tracker_app.services
 
 import android.content.Context
 import si.um.feri.cycling_tracker_app.models.RideData
+import si.um.feri.cycling_tracker_app.models.RideDataLocation
 import si.um.feri.cycling_tracker_app.utils.AppDatabase
 
 class RideManagerService private constructor(context: Context) {
@@ -25,7 +26,7 @@ class RideManagerService private constructor(context: Context) {
             timeStop = -1L,
             duration = 0L,
             user_id = userId,
-            rideLine = listOf(listOf()),
+            rideLine = mutableListOf(listOf()),
             is_active = 1,
             is_uploaded = 0
         )
@@ -35,8 +36,18 @@ class RideManagerService private constructor(context: Context) {
         return rideDatabase.rideDataDao().getActiveRide()
     }
 
-    fun saveRideLocation(rideId: Int, userId: Int) {
-        // TODO
+    fun saveRideLocation(rideId: Int, userId: Int, latitude: Double, longitude: Double) : RideDataLocation {
+        var rideLocation = RideDataLocation(
+            timestamp = System.currentTimeMillis(),
+            ride_id = rideId,
+            latitude = latitude,
+            longitude = longitude,
+            is_uploaded = 0
+        )
+
+        this.rideDatabase.rideDataLocation().insert(rideLocation)
+
+        return rideLocation
     }
 
     fun stopRideLocation(rideId: Int, stopedTime: Long, duration: Long): RideData {
@@ -45,7 +56,13 @@ class RideManagerService private constructor(context: Context) {
         thisRideData.duration = duration
         thisRideData.timeStop = stopedTime
 
-        // TODO need magic for converting the point to the line
+        var rideDataLocations = this.rideDatabase.rideDataLocation().getAllRideLocationDataForRide(thisRideData.ride_id)
+
+        thisRideData.rideLine = mutableListOf<List<Double>>()
+        rideDataLocations.forEach {
+            thisRideData.rideLine.add(listOf(it.latitude, it.longitude))
+            this.rideDatabase.rideDataLocation().delete(it)
+        }
 
         this.rideDatabase.rideDataDao().update(thisRideData)
 

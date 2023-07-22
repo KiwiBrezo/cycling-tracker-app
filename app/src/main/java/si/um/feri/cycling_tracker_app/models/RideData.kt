@@ -17,7 +17,7 @@ data class RideData(
 
     var user_id: Int,
 
-    var rideLine: List<List<Double>>,
+    var rideLine: MutableList<List<Double>>,
 
     var is_active: Int,
 

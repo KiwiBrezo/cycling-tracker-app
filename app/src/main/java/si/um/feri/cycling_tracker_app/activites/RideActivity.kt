@@ -255,9 +255,10 @@ class RideActivity : AppCompatActivity() {
     }
 
     private fun stopAndResetTimerView() {
-        // TODO
-        rideLocationManager.stopRideLocation(userData!!.user_id, System.currentTimeMillis(), timeInSeconds)
+        this.rideData = rideLocationManager.stopRideLocation(userData!!.user_id, System.currentTimeMillis(), timeInSeconds)
         rideHasStarted = false
+
+        // TODO need to upload ride to server
 
         stopTimer()
 
@@ -298,8 +299,9 @@ class RideActivity : AppCompatActivity() {
             map.overlays.add(startMarker)
             map.controller.animateTo(geoLocation)
 
-            // TODO
-            //rideLocationManager.saveRideLocation()
+            if (this.rideData != null) {
+                rideLocationManager.saveRideLocation(this.rideData!!.ride_id, this.userData!!.user_id, currentLocation!!.latitude, currentLocation!!.longitude)
+            }
         }
     }
 }

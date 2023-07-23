@@ -10,10 +10,16 @@ import si.um.feri.cycling_tracker_app.adapters.holder.RideCardData
 
 class RideCardAdapter(private val mList: List<RideCardData>) : RecyclerView.Adapter<RideCardAdapter.ViewHolder>() {
 
+    private var onClickListener: OnClickListener? = null
+
     class ViewHolder(ItemView: View) : RecyclerView.ViewHolder(ItemView) {
         val nameTextView: TextView = itemView.findViewById(R.id.voznja_name_textview)
         val dateTextView: TextView = itemView.findViewById(R.id.date_of_voznja_textview)
         val durationTextView: TextView = itemView.findViewById(R.id.duration_of_voznja_textview)
+    }
+
+    interface OnClickListener {
+        fun onClick(position: Int, model: RideCardData)
     }
 
     override fun onCreateViewHolder(parent: ViewGroup, viewType: Int): ViewHolder {
@@ -33,5 +39,15 @@ class RideCardAdapter(private val mList: List<RideCardData>) : RecyclerView.Adap
         holder.nameTextView.text = rideCardModel.rideNameText
         holder.durationTextView.text = rideCardModel.durationOfRide
         holder.dateTextView.text = rideCardModel.dateOfRide
+
+        holder.itemView.setOnClickListener {
+            if (onClickListener != null) {
+                onClickListener!!.onClick(position, rideCardModel)
+            }
+        }
+    }
+
+    fun setOnClickListener(onClickListener: OnClickListener) {
+        this.onClickListener = onClickListener
     }
 }

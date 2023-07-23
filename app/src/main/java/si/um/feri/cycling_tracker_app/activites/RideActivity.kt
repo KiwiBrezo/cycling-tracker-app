@@ -32,6 +32,7 @@ import si.um.feri.cycling_tracker_app.models.RideData
 import si.um.feri.cycling_tracker_app.models.UserData
 import si.um.feri.cycling_tracker_app.services.RideManagerService
 import si.um.feri.cycling_tracker_app.utils.AppDatabase
+import si.um.feri.cycling_tracker_app.utils.DateTimeUtils
 import java.util.concurrent.TimeUnit
 
 
@@ -237,21 +238,8 @@ class RideActivity : AppCompatActivity() {
     }
 
     private fun updateStopWatchView(timeInSeconds: Long) {
-        val formattedTime = getFormattedStopWatch((timeInSeconds * 1000))
+        val formattedTime = DateTimeUtils.getFormattedStopWatch(timeInSeconds * 1000)
         timer.text = formattedTime
-    }
-
-    fun getFormattedStopWatch(ms: Long): String {
-        var milliseconds = ms
-        val hours = TimeUnit.MILLISECONDS.toHours(milliseconds)
-        milliseconds -= TimeUnit.HOURS.toMillis(hours)
-        val minutes = TimeUnit.MILLISECONDS.toMinutes(milliseconds)
-        milliseconds -= TimeUnit.MINUTES.toMillis(minutes)
-        val seconds = TimeUnit.MILLISECONDS.toSeconds(milliseconds)
-
-        return "${if (hours < 10) "0" else ""}$hours:" +
-                "${if (minutes < 10) "0" else ""}$minutes:" +
-                "${if (seconds < 10) "0" else ""}$seconds"
     }
 
     private fun stopAndResetTimerView() {

@@ -33,7 +33,6 @@ import si.um.feri.cycling_tracker_app.models.UserData
 import si.um.feri.cycling_tracker_app.services.RideManagerService
 import si.um.feri.cycling_tracker_app.utils.AppDatabase
 import si.um.feri.cycling_tracker_app.utils.DateTimeUtils
-import java.util.concurrent.TimeUnit
 
 
 class RideActivity : AppCompatActivity() {
@@ -52,8 +51,8 @@ class RideActivity : AppCompatActivity() {
 
     private var currentLocation: Location? = null
 
-    private val mInterval = 1000 // 1 second in this case
-    private var mHandler: Handler? = null
+    private val interval = 1000 // 1 second in this case
+    private var rideTrackerHandler: Handler? = null
     private var timeInSeconds = 0L
     private var startButtonClicked = false
     private var hasGps = false
@@ -65,6 +64,7 @@ class RideActivity : AppCompatActivity() {
     private val gpsLocationListener: LocationListener = object : LocationListener {
         override fun onLocationChanged(location: Location) {
             currentLocation = location
+            showLocationOfUser()
         }
 
         override fun onStatusChanged(provider: String, status: Int, extras: Bundle) {}
@@ -188,7 +188,7 @@ class RideActivity : AppCompatActivity() {
     }
 
     private fun startTimer() {
-        mHandler = Handler(Looper.getMainLooper())
+        rideTrackerHandler = Handler(Looper.getMainLooper())
         timerStatusChecker.run()
         if (!rideHasStarted) {
             // TODO
@@ -198,7 +198,7 @@ class RideActivity : AppCompatActivity() {
     }
 
     private fun stopTimer() {
-        mHandler?.removeCallbacks(timerStatusChecker)
+        rideTrackerHandler?.removeCallbacks(timerStatusChecker)
     }
 
     private fun startTimerView() {
@@ -230,9 +230,7 @@ class RideActivity : AppCompatActivity() {
                 updateStopWatchView(timeInSeconds)
                 saveAndShowCurrentLocation()
             } finally {
-                // 100% guarantee that this always happens, even if
-                // your update method throws an exception
-                mHandler!!.postDelayed(this, mInterval.toLong())
+                rideTrackerHandler!!.postDelayed(this, interval.toLong())
             }
         }
     }
@@ -289,6 +287,27 @@ class RideActivity : AppCompatActivity() {
 
             if (this.rideData != null) {
                 rideLocationManager.saveRideLocation(this.rideData!!.ride_id, this.userData!!.user_id, currentLocation!!.latitude, currentLocation!!.longitude)
+            }
+        }
+    }
+
+    @SuppressLint("MissingPermission")
+    private fun showLocationOfUser() {
+        if (!rideHasStarted) {
+            map.overlays.forEach {
+                if (it is Marker) {
+                    map.overlays.remove(it)
+                }
+            }
+
+            val userGeoLocation = GeoPoint(locationManager.getLastKnownLocation(LocationManager.GPS_PROVIDER)!!.latitude,
+                locationManager.getLastKnownLocation(LocationManager.GPS_PROVIDER)!!.longitude)
+            if (userGeoLocation != null) {
+                val userMarker = Marker(map)
+                userMarker.position = userGeoLocation
+                userMarker.setAnchor(Marker.ANCHOR_CENTER, Marker.ANCHOR_BOTTOM)
+                map.overlays.add(userMarker)
+                map.controller.animateTo(userGeoLocation)
             }
         }
     }

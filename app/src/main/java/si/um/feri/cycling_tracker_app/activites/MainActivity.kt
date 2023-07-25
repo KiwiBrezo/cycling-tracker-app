@@ -4,17 +4,13 @@ import android.Manifest
 import android.content.Context
 import android.content.Intent
 import android.content.pm.PackageManager
-import android.os.Build.VERSION.SDK_INT
 import android.os.Bundle
-import android.os.StrictMode
-import android.os.StrictMode.ThreadPolicy
 import android.widget.Button
 import android.widget.ImageView
-import android.widget.Toast
-import androidx.activity.result.contract.ActivityResultContracts
 import androidx.appcompat.app.AppCompatActivity
 import androidx.core.app.ActivityCompat
 import si.um.feri.cycling_tracker_app.R
+import si.um.feri.cycling_tracker_app.services.RideManagerService
 
 
 class MainActivity : AppCompatActivity() {
@@ -26,29 +22,6 @@ class MainActivity : AppCompatActivity() {
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         setContentView(R.layout.activity_main)
-
-        if (ActivityCompat.checkSelfPermission(
-                this,
-                Manifest.permission.INTERNET
-            ) != PackageManager.PERMISSION_GRANTED && ActivityCompat.checkSelfPermission(
-                this,
-                Manifest.permission.ACCESS_NETWORK_STATE
-            ) != PackageManager.PERMISSION_GRANTED && ActivityCompat.checkSelfPermission(
-                this,
-                Manifest.permission.WRITE_EXTERNAL_STORAGE
-            ) != PackageManager.PERMISSION_GRANTED
-        ) {
-            ActivityCompat.requestPermissions(
-                this,
-                arrayOf(
-                    Manifest.permission.INTERNET,
-                    Manifest.permission.ACCESS_NETWORK_STATE,
-                    Manifest.permission.WRITE_EXTERNAL_STORAGE
-                ),
-                225
-            )
-        }
-
         this.startBtn = findViewById(R.id.start_btn)
         this.historyBtn = findViewById(R.id.history_btn)
         this.settingsBtn = findViewById(R.id.settings_btn_main)
@@ -61,6 +34,11 @@ class MainActivity : AppCompatActivity() {
         if (userToken!!.isEmpty()) {
             val intent = Intent(this, LoginActivity::class.java)
             startActivity(intent)
+        } else {
+            checkForPermissions()
+
+            var rideLocationManager = RideManagerService.getInstance(this)
+            rideLocationManager.checkForNotEndedRide()
         }
     }
 
@@ -78,6 +56,43 @@ class MainActivity : AppCompatActivity() {
         this.settingsBtn.setOnClickListener {
             val intent = Intent(this, SettingsActivity::class.java)
             startActivity(intent)
+        }
+    }
+
+    // TODO need to improve that (https://stackoverflow.com/questions/35484767/activitycompat-requestpermissions-not-showing-dialog-box)
+    private fun checkForPermissions() {
+        if (ActivityCompat.checkSelfPermission(
+                this,
+                Manifest.permission.ACCESS_FINE_LOCATION
+            ) != PackageManager.PERMISSION_GRANTED || ActivityCompat.checkSelfPermission(
+                this,
+                Manifest.permission.ACCESS_COARSE_LOCATION
+            ) != PackageManager.PERMISSION_GRANTED || ActivityCompat.checkSelfPermission(
+                this,
+                Manifest.permission.ACCESS_BACKGROUND_LOCATION
+            ) != PackageManager.PERMISSION_GRANTED || ActivityCompat.checkSelfPermission(
+                this,
+                Manifest.permission.INTERNET
+            ) != PackageManager.PERMISSION_GRANTED || ActivityCompat.checkSelfPermission(
+                this,
+                Manifest.permission.WRITE_EXTERNAL_STORAGE
+            ) != PackageManager.PERMISSION_GRANTED || ActivityCompat.checkSelfPermission(
+                this,
+                Manifest.permission.ACCESS_NETWORK_STATE
+            ) != PackageManager.PERMISSION_GRANTED
+        ) {
+            ActivityCompat.requestPermissions(
+                this,
+                arrayOf(
+                    Manifest.permission.ACCESS_FINE_LOCATION,
+                    Manifest.permission.ACCESS_COARSE_LOCATION,
+                    Manifest.permission.ACCESS_BACKGROUND_LOCATION,
+                    Manifest.permission.INTERNET,
+                    Manifest.permission.WRITE_EXTERNAL_STORAGE,
+                    Manifest.permission.ACCESS_NETWORK_STATE,
+                ),
+                225
+            )
         }
     }
 }

@@ -1,7 +1,9 @@
 package si.um.feri.cycling_tracker_app.activites
 
+import android.Manifest
 import android.content.Context
 import android.content.Intent
+import android.content.pm.PackageManager
 import android.os.Build
 import android.os.Bundle
 import android.os.StrictMode
@@ -9,6 +11,7 @@ import android.widget.Button
 import android.widget.EditText
 import android.widget.Toast
 import androidx.appcompat.app.AppCompatActivity
+import androidx.core.app.ActivityCompat
 import com.fasterxml.jackson.core.type.TypeReference
 import com.fasterxml.jackson.module.kotlin.jacksonObjectMapper
 import okhttp3.MediaType
@@ -38,6 +41,8 @@ class LoginActivity : AppCompatActivity() {
         super.onCreate(savedInstanceState)
         setContentView(R.layout.activity_login)
 
+        checkForPermissions()
+
         if (Build.VERSION.SDK_INT > 8) {
             val policy = StrictMode.ThreadPolicy.Builder()
                 .permitAll()
@@ -57,6 +62,30 @@ class LoginActivity : AppCompatActivity() {
     private fun bindComponents() {
         loginBtn.setOnClickListener {
             loginUser()
+        }
+    }
+
+    private fun checkForPermissions() {
+        if (ActivityCompat.checkSelfPermission(
+                this,
+                Manifest.permission.INTERNET
+            ) != PackageManager.PERMISSION_GRANTED || ActivityCompat.checkSelfPermission(
+                this,
+                Manifest.permission.WRITE_EXTERNAL_STORAGE
+            ) != PackageManager.PERMISSION_GRANTED || ActivityCompat.checkSelfPermission(
+                this,
+                Manifest.permission.ACCESS_NETWORK_STATE
+            ) != PackageManager.PERMISSION_GRANTED
+        ) {
+            ActivityCompat.requestPermissions(
+                this,
+                arrayOf(
+                    Manifest.permission.INTERNET,
+                    Manifest.permission.WRITE_EXTERNAL_STORAGE,
+                    Manifest.permission.ACCESS_NETWORK_STATE,
+                ),
+                225
+            )
         }
     }
 

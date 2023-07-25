@@ -72,10 +72,13 @@ class RideActivity : AppCompatActivity() {
         override fun onProviderDisabled(provider: String) {}
     }
 
+    @SuppressLint("MissingPermission")
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         Configuration.getInstance().load(this, PreferenceManager.getDefaultSharedPreferences(this))
         setContentView(R.layout.activity_ride)
+
+        checkForPermissions()
 
         this.rideLocationManager = RideManagerService.getInstance(this)
         this.appDatabase = AppDatabase.getInstance(this)
@@ -83,24 +86,6 @@ class RideActivity : AppCompatActivity() {
         val userToken = sharedPref.getString("user-token", "")
 
         this.userData = this.appDatabase.userDataDao().getUserDataByToken(userToken!!)
-
-        if (ActivityCompat.checkSelfPermission(
-                this,
-                Manifest.permission.ACCESS_FINE_LOCATION
-            ) != PackageManager.PERMISSION_GRANTED && ActivityCompat.checkSelfPermission(
-                this,
-                Manifest.permission.ACCESS_COARSE_LOCATION
-            ) != PackageManager.PERMISSION_GRANTED
-        ) {
-            ActivityCompat.requestPermissions(
-                this,
-                arrayOf(
-                    Manifest.permission.ACCESS_FINE_LOCATION,
-                    Manifest.permission.ACCESS_COARSE_LOCATION
-                ),
-                225
-            )
-        }
 
         this.map = findViewById(R.id.mapview_new)
         this.startPauseBtn = findViewById(R.id.start_pause_btn)
@@ -145,11 +130,43 @@ class RideActivity : AppCompatActivity() {
 
     override fun onDestroy() {
         super.onDestroy()
+        if (rideHasStarted) {
+            stopAndResetTimerView()
+        }
         stopTimer()
+    }
+
+    // TODO need to improve that (https://stackoverflow.com/questions/35484767/activitycompat-requestpermissions-not-showing-dialog-box)
+    private fun checkForPermissions() {
+        if (ActivityCompat.checkSelfPermission(
+                this,
+                Manifest.permission.ACCESS_FINE_LOCATION
+            ) != PackageManager.PERMISSION_GRANTED || ActivityCompat.checkSelfPermission(
+                this,
+                Manifest.permission.ACCESS_COARSE_LOCATION
+            ) != PackageManager.PERMISSION_GRANTED || ActivityCompat.checkSelfPermission(
+                this,
+                Manifest.permission.ACCESS_BACKGROUND_LOCATION
+            ) != PackageManager.PERMISSION_GRANTED
+        ) {
+            ActivityCompat.requestPermissions(
+                this,
+                arrayOf(
+                    Manifest.permission.ACCESS_FINE_LOCATION,
+                    Manifest.permission.ACCESS_COARSE_LOCATION,
+                    Manifest.permission.ACCESS_BACKGROUND_LOCATION
+                ),
+                225
+            )
+        }
     }
 
     @SuppressLint("MissingPermission")
     private fun bindAndSetUpMap() {
+        if (!hasGps) {
+            return
+        }
+
         map.setTileSource(TileSourceFactory.MAPNIK)
         map.setMultiTouchControls(true);
         val mapController = map.controller
@@ -241,7 +258,7 @@ class RideActivity : AppCompatActivity() {
     }
 
     private fun stopAndResetTimerView() {
-        this.rideData = rideLocationManager.stopRideLocation(userData!!.user_id, System.currentTimeMillis(), timeInSeconds)
+        this.rideData = rideLocationManager.stopRideLocation(this.rideData!!.ride_id, System.currentTimeMillis(), timeInSeconds)
         rideHasStarted = false
 
         // TODO need to upload ride to server

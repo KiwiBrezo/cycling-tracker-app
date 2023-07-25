@@ -68,4 +68,28 @@ class RideManagerService private constructor(context: Context) {
 
         return thisRideData
     }
+
+    fun checkForNotEndedRide() {
+        var rideDataLocations = this.rideDatabase.rideDataLocation().getAllRideLocationData()
+
+        if (rideDataLocations.size == 0) {
+            return
+        }
+
+        var ride = this.rideDatabase.rideDataDao().getRideById(rideDataLocations[0].ride_id)
+
+        ride.is_active = 0
+        ride.duration = (rideDataLocations.last().timestamp - ride.timeStart) / 1000
+        ride.timeStop = rideDataLocations.last().timestamp
+
+        ride.rideLine = mutableListOf<List<Double>>()
+        rideDataLocations.forEach {
+            ride.rideLine.add(listOf(it.latitude, it.longitude))
+            this.rideDatabase.rideDataLocation().delete(it)
+        }
+
+        this.rideDatabase.rideDataDao().update(ride)
+
+        // TODO upload data to cloud
+    }
 }

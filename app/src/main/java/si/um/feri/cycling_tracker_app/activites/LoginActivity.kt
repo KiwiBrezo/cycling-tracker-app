@@ -109,7 +109,7 @@ class LoginActivity : AppCompatActivity() {
         val body = RequestBody.create(jsonMediaType, jsonObject.toString())
 
         val request = Request.Builder()
-            .url("http://10.0.2.2:8080/api/v1/login")
+            .url("http://164.8.9.88:18080/api/v1/login")
             .post(body)
             .build()
 

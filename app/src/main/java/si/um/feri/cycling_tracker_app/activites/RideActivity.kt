@@ -3,17 +3,17 @@ package si.um.feri.cycling_tracker_app.activites
 import android.Manifest
 import android.annotation.SuppressLint
 import android.content.Context
+import android.content.Intent
 import android.content.pm.PackageManager
 import android.graphics.Bitmap
 import android.graphics.drawable.BitmapDrawable
 import android.graphics.drawable.Drawable
 import android.location.Location
-import android.location.LocationListener
-import android.location.LocationManager
 import android.os.Bundle
 import android.os.Handler
 import android.os.Looper
 import android.preference.PreferenceManager
+import android.util.Log
 import android.view.View
 import android.widget.Button
 import android.widget.ImageView
@@ -22,6 +22,9 @@ import androidx.appcompat.app.AppCompatActivity
 import androidx.core.app.ActivityCompat
 import androidx.core.content.ContextCompat
 import com.google.android.material.textview.MaterialTextView
+import org.greenrobot.eventbus.EventBus
+import org.greenrobot.eventbus.Subscribe
+import org.greenrobot.eventbus.ThreadMode
 import org.osmdroid.config.Configuration
 import org.osmdroid.tileprovider.tilesource.TileSourceFactory
 import org.osmdroid.util.GeoPoint
@@ -30,6 +33,8 @@ import org.osmdroid.views.overlay.Marker
 import si.um.feri.cycling_tracker_app.R
 import si.um.feri.cycling_tracker_app.models.RideData
 import si.um.feri.cycling_tracker_app.models.UserData
+import si.um.feri.cycling_tracker_app.models.events.LocationEvent
+import si.um.feri.cycling_tracker_app.services.RideLocationService
 import si.um.feri.cycling_tracker_app.services.RideManagerService
 import si.um.feri.cycling_tracker_app.utils.AppDatabase
 import si.um.feri.cycling_tracker_app.utils.DateTimeUtils
@@ -42,9 +47,8 @@ class RideActivity : AppCompatActivity() {
     private lateinit var startPauseBtn : Button
     private lateinit var stopBtn: Button
     private lateinit var settingsBtn : ImageView
-    private lateinit var locationManager: LocationManager
 
-    private lateinit var rideLocationManager: RideManagerService
+    private lateinit var rideManagerService: RideManagerService
     private lateinit var appDatabase: AppDatabase
 
     private lateinit var locationMarker : Drawable
@@ -61,16 +65,7 @@ class RideActivity : AppCompatActivity() {
     private var rideData: RideData? = null
     private var userData: UserData? = null
 
-    private val gpsLocationListener: LocationListener = object : LocationListener {
-        override fun onLocationChanged(location: Location) {
-            currentLocation = location
-            showLocationOfUser()
-        }
-
-        override fun onStatusChanged(provider: String, status: Int, extras: Bundle) {}
-        override fun onProviderEnabled(provider: String) {}
-        override fun onProviderDisabled(provider: String) {}
-    }
+    private lateinit var locationService: Intent
 
     @SuppressLint("MissingPermission")
     override fun onCreate(savedInstanceState: Bundle?) {
@@ -80,7 +75,7 @@ class RideActivity : AppCompatActivity() {
 
         checkForPermissions()
 
-        this.rideLocationManager = RideManagerService.getInstance(this)
+        this.rideManagerService = RideManagerService.getInstance(this)
         this.appDatabase = AppDatabase.getInstance(this)
         val sharedPref = this.getSharedPreferences("cycling-tracker-app-USER", Context.MODE_PRIVATE)
         val userToken = sharedPref.getString("user-token", "")
@@ -93,17 +88,7 @@ class RideActivity : AppCompatActivity() {
         this.settingsBtn = findViewById(R.id.settings_btn_ride)
         this.timer = findViewById(R.id.time_counter_textview)
 
-        this.locationManager = getSystemService(Context.LOCATION_SERVICE) as LocationManager
-        this.hasGps = this.locationManager.isProviderEnabled(LocationManager.GPS_PROVIDER)
-
-        if (hasGps) {
-            this.locationManager.requestLocationUpdates(
-                LocationManager.GPS_PROVIDER,
-                900,
-                0F,
-                this.gpsLocationListener
-            )
-        }
+        this.hasGps = true
 
         timer.text = "00:00:00"
         stopBtn.visibility = View.GONE;
@@ -113,6 +98,11 @@ class RideActivity : AppCompatActivity() {
         locationMarker = BitmapDrawable(resources, Bitmap.createScaledBitmap(bitmap, 35, 24, true));
 
         rideHasStarted = false
+
+        EventBus.getDefault().register(this)
+
+        this.locationService = Intent(this, RideLocationService::class.java)
+        this.startService(this.locationService)
 
         bindAndSetUpMap()
         bindButtons()
@@ -134,6 +124,8 @@ class RideActivity : AppCompatActivity() {
             stopAndResetTimerView()
         }
         stopTimer()
+        EventBus.getDefault().unregister(this)
+        this.stopService(this.locationService)
     }
 
     // TODO need to improve that (https://stackoverflow.com/questions/35484767/activitycompat-requestpermissions-not-showing-dialog-box)
@@ -171,7 +163,7 @@ class RideActivity : AppCompatActivity() {
         map.setMultiTouchControls(true);
         val mapController = map.controller
         mapController.setZoom(19)
-        val userGeoLocation = GeoPoint(this.locationManager.getLastKnownLocation(LocationManager.GPS_PROVIDER)!!.latitude,
+        /*val userGeoLocation = GeoPoint(this.locationManager.getLastKnownLocation(LocationManager.GPS_PROVIDER)!!.latitude,
                                        this.locationManager.getLastKnownLocation(LocationManager.GPS_PROVIDER)!!.longitude)
         if (userGeoLocation != null) {
             val userMarker = Marker(this.map)
@@ -179,7 +171,7 @@ class RideActivity : AppCompatActivity() {
             userMarker.setAnchor(Marker.ANCHOR_CENTER, Marker.ANCHOR_BOTTOM)
             map.overlays.add(userMarker)
             map.controller.animateTo(userGeoLocation)
-        }
+        }*/
     }
 
     private fun bindButtons() {
@@ -209,7 +201,7 @@ class RideActivity : AppCompatActivity() {
         timerStatusChecker.run()
         if (!rideHasStarted) {
             // TODO
-            this.rideData = this.rideLocationManager.startRideLocation(userData!!.user_id, System.currentTimeMillis())
+            this.rideData = this.rideManagerService.startRideLocation(userData!!.user_id, System.currentTimeMillis())
             this.rideHasStarted = true
         }
     }
@@ -258,7 +250,7 @@ class RideActivity : AppCompatActivity() {
     }
 
     private fun stopAndResetTimerView() {
-        this.rideData = rideLocationManager.stopRideLocation(this.rideData!!.ride_id, System.currentTimeMillis(), timeInSeconds)
+        this.rideData = rideManagerService.stopRideLocation(this.rideData!!.ride_id, System.currentTimeMillis(), timeInSeconds)
         rideHasStarted = false
 
         // TODO need to upload ride to server
@@ -292,7 +284,6 @@ class RideActivity : AppCompatActivity() {
             return
         }
 
-        currentLocation = locationManager.getLastKnownLocation(LocationManager.GPS_PROVIDER)
         if (currentLocation != null) {
             val startMarker = Marker(map)
             val geoLocation = GeoPoint(currentLocation!!.latitude, currentLocation!!.longitude)
@@ -303,13 +294,13 @@ class RideActivity : AppCompatActivity() {
             map.controller.animateTo(geoLocation)
 
             if (this.rideData != null) {
-                rideLocationManager.saveRideLocation(this.rideData!!.ride_id, this.userData!!.user_id, currentLocation!!.latitude, currentLocation!!.longitude)
+                rideManagerService.saveRideLocation(this.rideData!!.ride_id, this.userData!!.user_id, currentLocation!!.latitude, currentLocation!!.longitude)
             }
         }
     }
 
     @SuppressLint("MissingPermission")
-    private fun showLocationOfUser() {
+    private fun showLocationOfUser(location: Location) {
         if (!rideHasStarted) {
             map.overlays.forEach {
                 if (it is Marker) {
@@ -317,8 +308,7 @@ class RideActivity : AppCompatActivity() {
                 }
             }
 
-            val userGeoLocation = GeoPoint(locationManager.getLastKnownLocation(LocationManager.GPS_PROVIDER)!!.latitude,
-                locationManager.getLastKnownLocation(LocationManager.GPS_PROVIDER)!!.longitude)
+            val userGeoLocation = GeoPoint(location.latitude, location.longitude)
             if (userGeoLocation != null) {
                 val userMarker = Marker(map)
                 userMarker.position = userGeoLocation
@@ -327,5 +317,12 @@ class RideActivity : AppCompatActivity() {
                 map.controller.animateTo(userGeoLocation)
             }
         }
+    }
+
+    @Subscribe(threadMode = ThreadMode.MAIN)
+    fun getLocationEvent(gpsEvent: LocationEvent) {
+        Log.e("testEvent", "Location from  [${gpsEvent.latitude}, ${gpsEvent.longitude}]")
+        currentLocation = gpsEvent.location
+        showLocationOfUser(gpsEvent.location)
     }
 }

@@ -2,6 +2,7 @@ package si.um.feri.cycling_tracker_app.activites
 
 import android.content.Intent
 import android.os.Bundle
+import android.widget.Toast
 import androidx.appcompat.app.AppCompatActivity
 import androidx.recyclerview.widget.LinearLayoutManager
 import androidx.recyclerview.widget.RecyclerView
@@ -27,6 +28,10 @@ class RidesActivity : AppCompatActivity() {
         this.appDatabase = AppDatabase.getInstance(this)
 
         allRides = appDatabase.rideDataDao().getAllRideData()
+
+        if (allRides.size == 0) {
+            Toast.makeText(this, R.string.no_rides, Toast.LENGTH_SHORT).show()
+        }
 
         this.recyclerview = findViewById(R.id.recyclerview)
         this.recyclerview.layoutManager = LinearLayoutManager(this)

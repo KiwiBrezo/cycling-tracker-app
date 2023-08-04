@@ -10,19 +10,22 @@ import android.location.LocationManager
 import android.os.Bundle
 import android.os.IBinder
 import android.util.Log
+import android.widget.Toast
 import androidx.core.app.ActivityCompat
 import org.greenrobot.eventbus.EventBus
+import si.um.feri.cycling_tracker_app.R
 import si.um.feri.cycling_tracker_app.models.events.LocationEvent
 
 // https://github.com/codepath/android_guides/issues/220
 class RideLocationService : Service() {
 
     private val TAG = "RideLocationService"
-    private var mLocationManager: LocationManager? = null
+    private var locationManager: LocationManager? = null
+
     private val LOCATION_INTERVAL = 500
     private val LOCATION_DISTANCE = 5f
 
-    var mLocationListeners = arrayOf(
+    var locationListeners = arrayOf(
         LocationListener(LocationManager.PASSIVE_PROVIDER)
     )
 
@@ -32,14 +35,13 @@ class RideLocationService : Service() {
         var mLastLocation: Location
 
         init {
-            Log.e(TAG, "LocationListener $provider")
+            Log.i(TAG, "LocationListener $provider")
             mLastLocation = Location(provider)
         }
 
         override fun onLocationChanged(location: Location) {
             mLastLocation.set(location)
-            Log.e(TAG, "Last location [${mLastLocation.latitude}, ${mLastLocation.longitude}]")
-
+            Log.i(TAG, "Last location [${mLastLocation.latitude}, ${mLastLocation.longitude}]")
             EventBus.getDefault().post(LocationEvent(latitude = mLastLocation.latitude, longitude = mLastLocation.longitude, location = mLastLocation))
         }
 
@@ -64,32 +66,31 @@ class RideLocationService : Service() {
     }
 
     override fun onCreate() {
-        Log.e(TAG, "onCreate")
-
-        Log.e(TAG, "initializeLocationManager - LOCATION_INTERVAL: $LOCATION_INTERVAL LOCATION_DISTANCE: $LOCATION_DISTANCE")
-        if (mLocationManager == null) {
-            mLocationManager = applicationContext.getSystemService(Context.LOCATION_SERVICE) as LocationManager
+        Log.i(TAG, "initializeLocationManager - LOCATION_INTERVAL: $LOCATION_INTERVAL LOCATION_DISTANCE: $LOCATION_DISTANCE")
+        if (locationManager == null) {
+            locationManager = applicationContext.getSystemService(Context.LOCATION_SERVICE) as LocationManager
         }
 
         try {
-            mLocationManager!!.requestLocationUpdates(
+            locationManager!!.requestLocationUpdates(
                 LocationManager.GPS_PROVIDER,
                 LOCATION_INTERVAL.toLong(),
                 LOCATION_DISTANCE,
-                mLocationListeners[0]
+                locationListeners[0]
             )
         } catch (ex: SecurityException) {
-            Log.i(TAG, "fail to request location update, ignore", ex)
+            Log.e(TAG, "fail to request location update, ignore", ex)
+            Toast.makeText(this, R.string.error_in_app, Toast.LENGTH_SHORT).show()
         } catch (ex: IllegalArgumentException) {
-            Log.d(TAG, "network provider does not exist, " + ex.message)
+            Log.e(TAG, "network provider does not exist, " + ex.message)
+            Toast.makeText(this, R.string.error_in_app, Toast.LENGTH_SHORT).show()
         }
     }
 
     override fun onDestroy() {
-        Log.e(TAG, "onDestroy")
         super.onDestroy()
-        if (mLocationManager != null) {
-            for (i in mLocationListeners.indices) {
+        if (locationManager != null) {
+            for (i in locationListeners.indices) {
                 try {
                     if (ActivityCompat.checkSelfPermission(
                             this,
@@ -101,9 +102,10 @@ class RideLocationService : Service() {
                     ) {
                         return
                     }
-                    mLocationManager!!.removeUpdates(mLocationListeners[i])
+                    locationManager!!.removeUpdates(locationListeners[i])
                 } catch (ex: Exception) {
-                    Log.i(TAG, "fail to remove location listener, ignore", ex)
+                    Log.e(TAG, "fail to remove location listener, ignore", ex)
+                    Toast.makeText(this, R.string.error_in_app, Toast.LENGTH_SHORT).show()
                 }
             }
         }

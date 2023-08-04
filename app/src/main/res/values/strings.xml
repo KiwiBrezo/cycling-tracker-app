@@ -10,4 +10,9 @@
     <string name="stop_btn_text">Stop</string>
     <string name="username_textfield_text">Username</string>
     <string name="password_textfield_text">Password</string>
+    <string name="ride_saved">Ride saved to local database!</string>
+    <string name="error_in_app">There was an error!</string>
+    <string name="loading_location">Loading your last known location...</string>
+    <string name="no_rides">You have no ride right now :( Go for some ride !</string>
+    <string name="cleared_data">Seccesfully cleared local data.</string>
 </resources>

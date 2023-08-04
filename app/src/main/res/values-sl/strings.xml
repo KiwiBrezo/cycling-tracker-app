@@ -11,4 +11,9 @@
     <string name="begin_btn_text">Zaćni</string>
     <string name="stop_btn_text">Prenehaj</string>
     <string name="pause_btn_text">Pavza</string>
+    <string name="ride_saved">Vožnja je bula shranjena v lokalno bazo!</string>
+    <string name="error_in_app">Med delovanjem je prišlo do napake</string>
+    <string name="loading_location">Nalaganje vaše zadnje lokacije...</string>
+    <string name="no_rides">Nimate še preteklih voženj :( Pojdite kolesarit!</string>
+    <string name="cleared_data">Uspešno počiščena lokalna baza.</string>
 </resources>

@@ -106,6 +106,8 @@ class RideActivity : AppCompatActivity() {
 
         bindAndSetUpMap()
         bindButtons()
+
+        Toast.makeText(this, R.string.loading_location, Toast.LENGTH_SHORT).show()
     }
 
     override fun onResume() {
@@ -163,15 +165,6 @@ class RideActivity : AppCompatActivity() {
         map.setMultiTouchControls(true);
         val mapController = map.controller
         mapController.setZoom(19)
-        /*val userGeoLocation = GeoPoint(this.locationManager.getLastKnownLocation(LocationManager.GPS_PROVIDER)!!.latitude,
-                                       this.locationManager.getLastKnownLocation(LocationManager.GPS_PROVIDER)!!.longitude)
-        if (userGeoLocation != null) {
-            val userMarker = Marker(this.map)
-            userMarker.position = userGeoLocation
-            userMarker.setAnchor(Marker.ANCHOR_CENTER, Marker.ANCHOR_BOTTOM)
-            map.overlays.add(userMarker)
-            map.controller.animateTo(userGeoLocation)
-        }*/
     }
 
     private fun bindButtons() {
@@ -275,7 +268,7 @@ class RideActivity : AppCompatActivity() {
             }
         }
 
-        Toast.makeText(this, "Ride saved to local database!", Toast.LENGTH_SHORT).show()
+        Toast.makeText(this, R.string.ride_saved, Toast.LENGTH_SHORT).show()
     }
 
     @SuppressLint("MissingPermission")

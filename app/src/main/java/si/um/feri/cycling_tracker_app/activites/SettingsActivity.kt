@@ -6,6 +6,7 @@ import androidx.appcompat.app.AppCompatActivity
 import android.os.Bundle
 import android.widget.Button
 import android.widget.ImageView
+import android.widget.Toast
 import si.um.feri.cycling_tracker_app.R
 import si.um.feri.cycling_tracker_app.models.RideData
 import si.um.feri.cycling_tracker_app.utils.AppDatabase
@@ -76,5 +77,7 @@ class SettingsActivity : AppCompatActivity() {
         rideLocationDatas.forEach {
             this.appDatabase.rideDataLocation().delete(it)
         }
+
+        Toast.makeText(this, R.string.cleared_data, Toast.LENGTH_SHORT).show()
     }
 }

@@ -30,17 +30,18 @@ import org.osmdroid.tileprovider.tilesource.TileSourceFactory
 import org.osmdroid.util.GeoPoint
 import org.osmdroid.views.MapView
 import org.osmdroid.views.overlay.Marker
+import si.um.feri.cycling_tracker_app.AppController
 import si.um.feri.cycling_tracker_app.R
 import si.um.feri.cycling_tracker_app.models.RideData
 import si.um.feri.cycling_tracker_app.models.UserData
 import si.um.feri.cycling_tracker_app.models.events.LocationEvent
-import si.um.feri.cycling_tracker_app.services.RideLocationService
-import si.um.feri.cycling_tracker_app.services.RideManagerService
+import si.um.feri.cycling_tracker_app.utils.RideManager
 import si.um.feri.cycling_tracker_app.utils.AppDatabase
 import si.um.feri.cycling_tracker_app.utils.DateTimeUtils
 
 
 class RideActivity : AppCompatActivity() {
+    private val appController = AppController.applicationContext()
 
     private lateinit var map : MapView
     private lateinit var timer : MaterialTextView
@@ -48,7 +49,7 @@ class RideActivity : AppCompatActivity() {
     private lateinit var stopBtn: Button
     private lateinit var settingsBtn : ImageView
 
-    private lateinit var rideManagerService: RideManagerService
+    private lateinit var rideManager: RideManager
     private lateinit var appDatabase: AppDatabase
 
     private lateinit var locationMarker : Drawable
@@ -65,17 +66,16 @@ class RideActivity : AppCompatActivity() {
     private var rideData: RideData? = null
     private var userData: UserData? = null
 
-    private lateinit var locationService: Intent
-
     @SuppressLint("MissingPermission")
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         Configuration.getInstance().load(this, PreferenceManager.getDefaultSharedPreferences(this))
         setContentView(R.layout.activity_ride)
 
-        checkForPermissions()
+        this.appController.askForPermission(this)
+        this.appController.startServices()
 
-        this.rideManagerService = RideManagerService.getInstance(this)
+        this.rideManager = RideManager.getInstance(this)
         this.appDatabase = AppDatabase.getInstance(this)
         val sharedPref = this.getSharedPreferences("cycling-tracker-app-USER", Context.MODE_PRIVATE)
         val userToken = sharedPref.getString("user-token", "")
@@ -101,9 +101,6 @@ class RideActivity : AppCompatActivity() {
 
         EventBus.getDefault().register(this)
 
-        this.locationService = Intent(this, RideLocationService::class.java)
-        this.startService(this.locationService)
-
         bindAndSetUpMap()
         bindButtons()
 
@@ -127,32 +124,6 @@ class RideActivity : AppCompatActivity() {
         }
         stopTimer()
         EventBus.getDefault().unregister(this)
-        this.stopService(this.locationService)
-    }
-
-    // TODO need to improve that (https://stackoverflow.com/questions/35484767/activitycompat-requestpermissions-not-showing-dialog-box)
-    private fun checkForPermissions() {
-        if (ActivityCompat.checkSelfPermission(
-                this,
-                Manifest.permission.ACCESS_FINE_LOCATION
-            ) != PackageManager.PERMISSION_GRANTED || ActivityCompat.checkSelfPermission(
-                this,
-                Manifest.permission.ACCESS_COARSE_LOCATION
-            ) != PackageManager.PERMISSION_GRANTED || ActivityCompat.checkSelfPermission(
-                this,
-                Manifest.permission.ACCESS_BACKGROUND_LOCATION
-            ) != PackageManager.PERMISSION_GRANTED
-        ) {
-            ActivityCompat.requestPermissions(
-                this,
-                arrayOf(
-                    Manifest.permission.ACCESS_FINE_LOCATION,
-                    Manifest.permission.ACCESS_COARSE_LOCATION,
-                    Manifest.permission.ACCESS_BACKGROUND_LOCATION
-                ),
-                225
-            )
-        }
     }
 
     @SuppressLint("MissingPermission")
@@ -194,7 +165,7 @@ class RideActivity : AppCompatActivity() {
         timerStatusChecker.run()
         if (!rideHasStarted) {
             // TODO
-            this.rideData = this.rideManagerService.startRideLocation(userData!!.user_id, System.currentTimeMillis())
+            this.rideData = this.rideManager.startRideLocation(userData!!.user_id, System.currentTimeMillis())
             this.rideHasStarted = true
         }
     }
@@ -243,7 +214,7 @@ class RideActivity : AppCompatActivity() {
     }
 
     private fun stopAndResetTimerView() {
-        this.rideData = rideManagerService.stopRideLocation(this.rideData!!.ride_id, System.currentTimeMillis(), timeInSeconds)
+        this.rideData = rideManager.stopRideLocation(this.rideData!!.ride_id, System.currentTimeMillis(), timeInSeconds)
         rideHasStarted = false
 
         // TODO need to upload ride to server
@@ -287,7 +258,7 @@ class RideActivity : AppCompatActivity() {
             map.controller.animateTo(geoLocation)
 
             if (this.rideData != null) {
-                rideManagerService.saveRideLocation(this.rideData!!.ride_id, this.userData!!.user_id, currentLocation!!.latitude, currentLocation!!.longitude)
+                rideManager.saveRideLocation(this.rideData!!.ride_id, this.userData!!.user_id, currentLocation!!.latitude, currentLocation!!.longitude)
             }
         }
     }

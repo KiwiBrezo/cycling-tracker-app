@@ -1,20 +1,19 @@
-package si.um.feri.cycling_tracker_app.services
+package si.um.feri.cycling_tracker_app.utils
 
 import android.content.Context
 import si.um.feri.cycling_tracker_app.models.RideData
 import si.um.feri.cycling_tracker_app.models.RideDataLocation
-import si.um.feri.cycling_tracker_app.utils.AppDatabase
 
-class RideManagerService private constructor(context: Context) {
+class RideManager private constructor(context: Context) {
 
     private var rideDatabase: AppDatabase = AppDatabase.getInstance(context)
 
     companion object {
-        private var instance: RideManagerService? = null
+        private var instance: RideManager? = null
 
-        fun getInstance(context: Context): RideManagerService {
+        fun getInstance(context: Context): RideManager {
             if (instance == null) {
-                instance = RideManagerService(context)
+                instance = RideManager(context)
             }
             return instance!!
         }

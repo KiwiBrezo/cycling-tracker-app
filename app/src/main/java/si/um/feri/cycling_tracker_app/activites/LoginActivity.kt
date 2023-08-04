@@ -20,12 +20,14 @@ import okhttp3.Request
 import okhttp3.RequestBody
 import org.json.JSONException
 import org.json.JSONObject
+import si.um.feri.cycling_tracker_app.AppController
 import si.um.feri.cycling_tracker_app.R
 import si.um.feri.cycling_tracker_app.models.UserData
 import si.um.feri.cycling_tracker_app.utils.AppDatabase
 
 
 class LoginActivity : AppCompatActivity() {
+    private val appController = AppController.applicationContext()
 
     private val client = OkHttpClient()
     private val jsonMediaType: MediaType? = MediaType.parse("application/json; charset=utf-8")
@@ -41,8 +43,6 @@ class LoginActivity : AppCompatActivity() {
         super.onCreate(savedInstanceState)
         setContentView(R.layout.activity_login)
 
-        checkForPermissions()
-
         if (Build.VERSION.SDK_INT > 8) {
             val policy = StrictMode.ThreadPolicy.Builder()
                 .permitAll()
@@ -57,35 +57,13 @@ class LoginActivity : AppCompatActivity() {
         this.appDatabase = AppDatabase.getInstance(this)
 
         bindComponents()
+
+        this.appController.askForPermission(this)
     }
 
     private fun bindComponents() {
         loginBtn.setOnClickListener {
             loginUser()
-        }
-    }
-
-    private fun checkForPermissions() {
-        if (ActivityCompat.checkSelfPermission(
-                this,
-                Manifest.permission.INTERNET
-            ) != PackageManager.PERMISSION_GRANTED || ActivityCompat.checkSelfPermission(
-                this,
-                Manifest.permission.WRITE_EXTERNAL_STORAGE
-            ) != PackageManager.PERMISSION_GRANTED || ActivityCompat.checkSelfPermission(
-                this,
-                Manifest.permission.ACCESS_NETWORK_STATE
-            ) != PackageManager.PERMISSION_GRANTED
-        ) {
-            ActivityCompat.requestPermissions(
-                this,
-                arrayOf(
-                    Manifest.permission.INTERNET,
-                    Manifest.permission.WRITE_EXTERNAL_STORAGE,
-                    Manifest.permission.ACCESS_NETWORK_STATE,
-                ),
-                225
-            )
         }
     }
 

@@ -47,6 +47,7 @@
         </activity>
 
         <service android:name=".services.RideLocationService"></service>
+        <service android:name=".services.RideUploadService"></service>
     </application>
 
 </manifest>

@@ -35,6 +35,8 @@ import si.um.feri.cycling_tracker_app.R
 import si.um.feri.cycling_tracker_app.models.RideData
 import si.um.feri.cycling_tracker_app.models.UserData
 import si.um.feri.cycling_tracker_app.models.events.LocationEvent
+import si.um.feri.cycling_tracker_app.models.events.LocationUploadEvent
+import si.um.feri.cycling_tracker_app.models.events.RideUploadEvent
 import si.um.feri.cycling_tracker_app.utils.RideManager
 import si.um.feri.cycling_tracker_app.utils.AppDatabase
 import si.um.feri.cycling_tracker_app.utils.DateTimeUtils
@@ -217,7 +219,7 @@ class RideActivity : AppCompatActivity() {
         this.rideData = rideManager.stopRideLocation(this.rideData!!.ride_id, System.currentTimeMillis(), timeInSeconds)
         rideHasStarted = false
 
-        // TODO need to upload ride to server
+        EventBus.getDefault().post(RideUploadEvent(ride_id = this.rideData!!.ride_id, user_id = this.rideData!!.user_id, duration = this.rideData!!.duration, timeStart = this.rideData!!.timeStart, timeStop = this.rideData!!.timeStop))
 
         stopTimer()
 
@@ -258,7 +260,8 @@ class RideActivity : AppCompatActivity() {
             map.controller.animateTo(geoLocation)
 
             if (this.rideData != null) {
-                rideManager.saveRideLocation(this.rideData!!.ride_id, this.userData!!.user_id, currentLocation!!.latitude, currentLocation!!.longitude)
+                val rideLocation = rideManager.saveRideLocation(this.rideData!!.ride_id, this.userData!!.user_id, currentLocation!!.latitude, currentLocation!!.longitude)
+                EventBus.getDefault().post(LocationUploadEvent(ride_id = rideLocation.ride_id, timestamp = rideLocation.timestamp, longitude = rideLocation.longitude, latitude = rideLocation.latitude))
             }
         }
     }

@@ -1,0 +1,22 @@
+syntax = "proto3";
+
+package si.um.feri.cycling_tracker_app.grpc;
+
+option go_package = "/Grpc";
+option java_multiple_files = true;
+
+
+service AddRideLocationService {
+  rpc addRideLocation (AddLocationRequest) returns (AddLocationResponse) {}
+}
+
+message AddLocationRequest {
+  int32 ride_id = 1;
+  uint64 timestamp = 2;
+  double latitude = 3;
+  double longitude = 4;
+}
+
+message AddLocationResponse {
+  int32 isUploaded = 1;
+}

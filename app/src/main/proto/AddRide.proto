@@ -1,0 +1,24 @@
+syntax = "proto3";
+
+package si.um.feri.cycling_tracker_app.grpc;
+
+option go_package = "/Grpc";
+option java_multiple_files = true;
+
+
+service AddRideService {
+  rpc addRide (AddRideRequest) returns (AddRideResponse) {}
+}
+
+message AddRideRequest {
+  int32 ride_id = 1;
+  uint64 timeStart = 2;
+  uint64 timeStop = 3;
+  uint64 duration = 4;
+  int32 user_id = 5;
+
+}
+
+message AddRideResponse {
+  int32 isUploaded = 1;
+}

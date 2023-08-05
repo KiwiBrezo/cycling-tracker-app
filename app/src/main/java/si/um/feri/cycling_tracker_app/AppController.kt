@@ -7,6 +7,7 @@ import android.content.Intent
 import android.content.pm.PackageManager
 import androidx.core.app.ActivityCompat
 import si.um.feri.cycling_tracker_app.services.RideLocationService
+import si.um.feri.cycling_tracker_app.services.RideUploadService
 
 class AppController : Application() {
 
@@ -46,7 +47,7 @@ class AppController : Application() {
         this.locationService = Intent(this, RideLocationService::class.java)
         this.startService(this.locationService)
 
-        this.uploadService = Intent(this, RideLocationService::class.java)
+        this.uploadService = Intent(this, RideUploadService::class.java)
         this.startService(this.uploadService)
 
         this.serviceStarted = true;

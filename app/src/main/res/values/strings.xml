@@ -23,4 +23,5 @@
     <string name="no_internet_connection">There is no internet connection, try to reconect...</string>
     <string name="lost_connection">Your app has no more internet connection...</string>
     <string name="connected_back">Your app is back online!</string>
+    <string name="ride_title">Ride</string>
 </resources>

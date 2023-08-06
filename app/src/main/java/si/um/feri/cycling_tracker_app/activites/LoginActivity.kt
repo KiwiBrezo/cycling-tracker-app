@@ -56,7 +56,7 @@ class LoginActivity : AppCompatActivity() {
 
         this.appDatabase = AppDatabase.getInstance(this)
 
-        bindComponents()
+        this.bindComponents()
 
         this.appController.askForPermission(this)
     }
@@ -96,7 +96,7 @@ class LoginActivity : AppCompatActivity() {
             .post(body)
             .build()
 
-        client.newCall(request).execute().use { response ->
+        this.client.newCall(request).execute().use { response ->
             if (response.code() != 200) {
                 Toast.makeText(this, R.string.failed_login, Toast.LENGTH_SHORT).show()
                 return

@@ -8,8 +8,6 @@ import java.io.Serializable
 data class UserData(
     @PrimaryKey(autoGenerate = true)
     val user_id : Int = 0,
-
     var username : String,
-
     var token : String
 ) : Serializable

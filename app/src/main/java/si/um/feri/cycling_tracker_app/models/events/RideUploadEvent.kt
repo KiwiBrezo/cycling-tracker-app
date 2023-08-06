@@ -1,9 +1,9 @@
 package si.um.feri.cycling_tracker_app.models.events
 
 data class RideUploadEvent(
-    var ride_id: Int,
-    var timeStart: Long,
-    var timeStop: Long,
-    var duration: Long,
-    var user_id: Int
+    val ride_id: Int,
+    val timeStart: Long,
+    val timeStop: Long,
+    val duration: Long,
+    val user_id: Int
 )

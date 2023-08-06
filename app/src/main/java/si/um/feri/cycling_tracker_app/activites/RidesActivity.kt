@@ -40,7 +40,8 @@ class RidesActivity : AppCompatActivity() {
         for (i in 1..allRides.size) {
             rideDataHolders.add(RideCardData(
                 allRides[i - 1].ride_id,
-                "Voznja ${i}",
+                //"${R.string.ride_title} $i",
+                "Ride $i",
                 DateTimeUtils.getDate(allRides[i - 1].timeStart, "dd.MM.yyyy")!!,
                 DateTimeUtils.getFormattedStopWatch(allRides[i - 1].duration * 1000),
             ))

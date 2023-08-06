@@ -8,18 +8,11 @@ import java.io.Serializable
 data class RideData(
     @PrimaryKey(autoGenerate = true)
     val ride_id: Int = 0,
-
     var timeStart: Long,
-
     var timeStop: Long,
-
     var duration: Long,
-
     var user_id: Int,
-
     var rideLine: MutableList<List<Double>>,
-
     var is_active: Int,
-
     var is_uploaded: Int
 ) : Serializable

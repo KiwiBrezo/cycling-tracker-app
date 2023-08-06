@@ -1,6 +1,7 @@
 package si.um.feri.cycling_tracker_app.utils
 
 import android.content.Context
+import android.util.Log
 import si.um.feri.cycling_tracker_app.models.RideData
 import si.um.feri.cycling_tracker_app.models.RideDataLocation
 
@@ -30,7 +31,9 @@ class RideManager private constructor(context: Context) {
             is_uploaded = 0
         )
 
-        this.rideDatabase.rideDataDao().insert(newRideData)
+        val insertedId = this.rideDatabase.rideDataDao().insert(newRideData)
+
+        Log.i("Ride Manager", "Saved new starting ride with id: $insertedId to local database")
 
         return rideDatabase.rideDataDao().getActiveRide()
     }
@@ -45,6 +48,8 @@ class RideManager private constructor(context: Context) {
         )
 
         val insertedId = this.rideDatabase.rideDataLocationDao().insert(rideLocation).toInt()
+
+        Log.i("Ride Manager", "Saved new ride location with id: $insertedId to local database")
 
         return this.rideDatabase.rideDataLocationDao().getRideDataLocationById(insertedId)
     }
@@ -65,16 +70,22 @@ class RideManager private constructor(context: Context) {
 
         this.rideDatabase.rideDataDao().update(thisRideData)
 
+        Log.i("Ride Manager", "Updated final state of ride with id: ${thisRideData.ride_id} to local database")
+
         return thisRideData
     }
 
     fun checkForNotEndedRide(): MutableList<RideDataLocation> {
+        Log.i("Ride Manager", "Checking if there are some not finished rides to bi completed...")
+
         var notUploadedLocations = mutableListOf<RideDataLocation>()
         var rideDataLocations = this.rideDatabase.rideDataLocationDao().getAllRideLocationData()
 
         if (rideDataLocations.size == 0) {
             return mutableListOf()
         }
+
+        Log.i("Ride Manager", "Found one not finished ride ... completing it now")
 
         var ride = this.rideDatabase.rideDataDao().getRideById(rideDataLocations[0].ride_id)
 
@@ -93,6 +104,8 @@ class RideManager private constructor(context: Context) {
         }
 
         this.rideDatabase.rideDataDao().update(ride)
+
+        Log.i("Ride Manager", "Need to upload ${notUploadedLocations.size} ride locations to server")
 
         return notUploadedLocations
     }

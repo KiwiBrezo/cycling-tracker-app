@@ -18,8 +18,6 @@ import si.um.feri.cycling_tracker_app.models.events.LocationEvent
 
 // https://github.com/codepath/android_guides/issues/220
 class RideLocationService : Service() {
-
-    private val TAG = "RideLocationService"
     private var locationManager: LocationManager? = null
 
     private val LOCATION_INTERVAL = 500
@@ -30,19 +28,17 @@ class RideLocationService : Service() {
     )
 
     class LocationListener(provider: String) : android.location.LocationListener {
-        private val TAG = "RideLocationService.LocationListener"
-
-        var mLastLocation: Location
+        var lastLocation: Location
 
         init {
-            Log.i(TAG, "LocationListener $provider")
-            mLastLocation = Location(provider)
+            Log.i("Ride Location Service -> LocationListener", "LocationListener $provider")
+            lastLocation = Location(provider)
         }
 
         override fun onLocationChanged(location: Location) {
-            mLastLocation.set(location)
-            Log.i(TAG, "Last location [${mLastLocation.latitude}, ${mLastLocation.longitude}]")
-            EventBus.getDefault().post(LocationEvent(latitude = mLastLocation.latitude, longitude = mLastLocation.longitude, location = mLastLocation))
+            lastLocation.set(location)
+            Log.i("Ride Location Service -> LocationListener", "Last location [${lastLocation.latitude}, ${lastLocation.longitude}]")
+            EventBus.getDefault().post(LocationEvent(latitude = lastLocation.latitude, longitude = lastLocation.longitude, location = lastLocation))
         }
 
         override fun onProviderDisabled(provider: String) {
@@ -60,13 +56,13 @@ class RideLocationService : Service() {
     }
 
     override fun onStartCommand(intent: Intent?, flags: Int, startId: Int): Int {
-        Log.e(TAG, "onStartCommand")
+        Log.e("Ride Location Service", "onStartCommand")
         super.onStartCommand(intent, flags, startId)
         return START_STICKY
     }
 
     override fun onCreate() {
-        Log.i(TAG, "initializeLocationManager - LOCATION_INTERVAL: $LOCATION_INTERVAL LOCATION_DISTANCE: $LOCATION_DISTANCE")
+        Log.i("Ride Location Service", "initializeLocationManager - LOCATION_INTERVAL: $LOCATION_INTERVAL LOCATION_DISTANCE: $LOCATION_DISTANCE")
         if (locationManager == null) {
             locationManager = applicationContext.getSystemService(Context.LOCATION_SERVICE) as LocationManager
         }
@@ -79,10 +75,10 @@ class RideLocationService : Service() {
                 locationListeners[0]
             )
         } catch (ex: SecurityException) {
-            Log.e(TAG, "fail to request location update, ignore", ex)
+            Log.e("Ride Location Service", "fail to request location update, ignore", ex)
             Toast.makeText(this, R.string.error_in_app, Toast.LENGTH_SHORT).show()
         } catch (ex: IllegalArgumentException) {
-            Log.e(TAG, "network provider does not exist, " + ex.message)
+            Log.e("Ride Location Service", "network provider does not exist, " + ex.message)
             Toast.makeText(this, R.string.error_in_app, Toast.LENGTH_SHORT).show()
         }
     }
@@ -104,7 +100,7 @@ class RideLocationService : Service() {
                     }
                     locationManager!!.removeUpdates(locationListeners[i])
                 } catch (ex: Exception) {
-                    Log.e(TAG, "fail to remove location listener, ignore", ex)
+                    Log.e("Ride Location Service", "fail to remove location listener, ignore", ex)
                     Toast.makeText(this, R.string.error_in_app, Toast.LENGTH_SHORT).show()
                 }
             }

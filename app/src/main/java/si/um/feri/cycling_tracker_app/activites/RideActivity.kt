@@ -292,7 +292,6 @@ class RideActivity : AppCompatActivity() {
 
     @Subscribe(threadMode = ThreadMode.MAIN)
     fun getLocationEvent(gpsEvent: LocationEvent) {
-        Log.e("testEvent", "Location from  [${gpsEvent.latitude}, ${gpsEvent.longitude}]")
         currentLocation = gpsEvent.location
         showLocationOfUser(gpsEvent.location)
     }

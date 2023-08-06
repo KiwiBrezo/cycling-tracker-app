@@ -41,7 +41,7 @@ class RideUploadService : Service() {
         override fun run() {
             try {
                 hasInternetConnection = appController.isNetworkAvailable(this@RideUploadService)
-                Log.i("GRPC INTERNET CHECK", "Is there internet connection: $hasInternetConnection")
+                Log.i("Periodic internet check", "Is there internet connection: $hasInternetConnection")
 
                 // if there is no internet the we ne to set flag that stuff will be needed to upload again
                 if (!hasInternetConnection && !needToTryUploadAgain) {
@@ -102,7 +102,7 @@ class RideUploadService : Service() {
             this.rideStub = AddRideServiceGrpcKt.AddRideServiceCoroutineStub(this.chanel)
             this.locationStub = AddRideLocationServiceGrpcKt.AddRideLocationServiceCoroutineStub(this.chanel)
         } catch (e: Exception) {
-            Log.e("GRPC SERVER CONNECT", "There was an problem connecting to the gRPC server, maybe it is down!")
+            Log.e("Grpc Upload Service", "There was an problem connecting to the gRPC server, maybe it is down!")
         }
 
     }
@@ -110,7 +110,7 @@ class RideUploadService : Service() {
     @Subscribe(threadMode = ThreadMode.MAIN)
     fun uploadNewRideToServer(rideUploadEvent: RideUploadEvent) {
         if (!hasInternetConnection) {
-            Log.i("GRPC RIDE UPLOAD", "There is no internet connection")
+            Log.i("Grpc Upload Service", "There is no internet connection")
             return
         }
 
@@ -128,17 +128,17 @@ class RideUploadService : Service() {
                 val response = rideStub.withDeadlineAfter(300, TimeUnit.MILLISECONDS).addRide(request)
 
                 if (response.isUploaded > 0) {
-                    Log.i("GRPC RIDE UPLOAD", "Ride was successfully uploaded")
+                    Log.i("Grpc Upload Service", "Ride was successfully uploaded")
                     EventBus.getDefault().post(RideIsUploadedEvent(rideUploadEvent.ride_id))
                 } else {
-                    Log.i("GRPC RIDE UPLOAD", "There was an error while uploading the ride data")
+                    Log.i("Grpc Upload Service", "There was an error while uploading the ride data")
                 }
 
                 hasGrpcConnection = true
             } catch (e: Exception) {
                 needToConnectToGrpcAgain = true
                 hasGrpcConnection = false
-                Log.e("GRPC RIDE UPLOAD", "gRPC server is not reachable!")
+                Log.e("Grpc Upload Service", "gRPC server is not reachable!")
             }
         }
     }
@@ -146,7 +146,7 @@ class RideUploadService : Service() {
     @Subscribe(threadMode = ThreadMode.MAIN)
     fun uploadNewRideLocationToServer(locationUploadEvent: LocationUploadEvent) {
         if (!hasInternetConnection) {
-            Log.i("GRPC LOCATION UPLOAD", "There is no internet connection")
+            Log.i("Grpc Upload Service", "There is no internet connection")
             return
         }
 
@@ -163,17 +163,17 @@ class RideUploadService : Service() {
                 val response = locationStub.withDeadlineAfter(300, TimeUnit.MILLISECONDS).addRideLocation(request)
 
                 if (response.isUploaded > 0) {
-                    Log.i("GRPC LOCATION UPLOAD", "Ride location was successfully uploaded")
+                    Log.i("Grpc Upload Service", "Ride location was successfully uploaded")
                     EventBus.getDefault().post(LocationIsUploadedEvent(locationUploadEvent.location_id))
                 } else {
-                    Log.i("GRPC LOCATION UPLOAD", "There was an error while uploading the ride location")
+                    Log.i("Grpc Upload Service", "There was an error while uploading the ride location")
                 }
 
                 hasGrpcConnection = true
             } catch (e: Exception) {
                 needToConnectToGrpcAgain = true
                 hasGrpcConnection = false
-                Log.e("GRPC LOCATION UPLOAD", "gRPC server is not reachable!")
+                Log.e("Grpc Upload Service", "gRPC server is not reachable!")
             }
         }
     }

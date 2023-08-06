@@ -44,9 +44,9 @@ class RideManager private constructor(context: Context) {
             is_uploaded = 0
         )
 
-        this.rideDatabase.rideDataLocation().insert(rideLocation)
+        val insertedId = this.rideDatabase.rideDataLocationDao().insert(rideLocation).toInt()
 
-        return rideLocation
+        return this.rideDatabase.rideDataLocationDao().getRideDataLocationById(insertedId)
     }
 
     fun stopRideLocation(rideId: Int, stopedTime: Long, duration: Long): RideData {
@@ -55,12 +55,12 @@ class RideManager private constructor(context: Context) {
         thisRideData.duration = duration
         thisRideData.timeStop = stopedTime
 
-        var rideDataLocations = this.rideDatabase.rideDataLocation().getAllRideLocationDataForRide(thisRideData.ride_id)
+        var rideDataLocations = this.rideDatabase.rideDataLocationDao().getAllRideLocationDataForRide(thisRideData.ride_id)
 
         thisRideData.rideLine = mutableListOf<List<Double>>()
         rideDataLocations.forEach {
             thisRideData.rideLine.add(listOf(it.latitude, it.longitude))
-            this.rideDatabase.rideDataLocation().delete(it)
+            this.rideDatabase.rideDataLocationDao().delete(it)
         }
 
         this.rideDatabase.rideDataDao().update(thisRideData)
@@ -68,11 +68,12 @@ class RideManager private constructor(context: Context) {
         return thisRideData
     }
 
-    fun checkForNotEndedRide() {
-        var rideDataLocations = this.rideDatabase.rideDataLocation().getAllRideLocationData()
+    fun checkForNotEndedRide(): MutableList<RideDataLocation> {
+        var notUploadedLocations = mutableListOf<RideDataLocation>()
+        var rideDataLocations = this.rideDatabase.rideDataLocationDao().getAllRideLocationData()
 
         if (rideDataLocations.size == 0) {
-            return
+            return mutableListOf()
         }
 
         var ride = this.rideDatabase.rideDataDao().getRideById(rideDataLocations[0].ride_id)
@@ -84,11 +85,48 @@ class RideManager private constructor(context: Context) {
         ride.rideLine = mutableListOf<List<Double>>()
         rideDataLocations.forEach {
             ride.rideLine.add(listOf(it.latitude, it.longitude))
-            this.rideDatabase.rideDataLocation().delete(it)
+            if (it.is_uploaded == 0) {
+                notUploadedLocations.add(it)
+            } else {
+                this.rideDatabase.rideDataLocationDao().delete(it)
+            }
         }
 
         this.rideDatabase.rideDataDao().update(ride)
 
-        // TODO upload data to cloud
+        return notUploadedLocations
+    }
+
+    fun getAllRideLocationsNotUploaded(): MutableList<RideDataLocation> {
+        return this.rideDatabase.rideDataLocationDao().getAllRideLocationDataNotUploaded()
+    }
+
+    fun getAllRidesNotUploaded(): MutableList<RideData> {
+        return this.rideDatabase.rideDataDao().getAllNotUploaded()
+    }
+
+    fun setRideLocationStatusToUploaded(locationId: Int): RideDataLocation {
+        var location = this.rideDatabase.rideDataLocationDao().getRideDataLocationById(locationId)
+        val rideOfLocation = this.rideDatabase.rideDataDao().getRideById(location.ride_id)
+
+        // If ride is not active then there is no reason for keeping location in local database
+        if (rideOfLocation.is_active == 0) {
+            this.rideDatabase.rideDataLocationDao().delete(location)
+        } else {
+            location.is_uploaded = 1
+            this.rideDatabase.rideDataLocationDao().update(location)
+        }
+
+        return location
+    }
+
+    fun setRideStatusToUploaded(rideId: Int): RideData {
+        var ride = this.rideDatabase.rideDataDao().getRideById(rideId)
+
+        ride.is_uploaded = 1
+
+        this.rideDatabase.rideDataDao().update(ride)
+
+        return ride
     }
 }

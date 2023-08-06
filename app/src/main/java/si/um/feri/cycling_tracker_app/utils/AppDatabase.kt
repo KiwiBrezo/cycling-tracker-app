@@ -18,7 +18,7 @@ import si.um.feri.cycling_tracker_app.models.coverters.RideLineConverter
 abstract class AppDatabase : RoomDatabase() {
     abstract fun rideDataDao(): RideDataDao
     abstract fun userDataDao(): UserDataDao
-    abstract fun rideDataLocation(): RideDataLocationDao
+    abstract fun rideDataLocationDao(): RideDataLocationDao
 
     companion object {
         private var instance: AppDatabase? = null

@@ -14,6 +14,9 @@ interface RideDataLocationDao {
     @Delete
     fun delete(userData: RideDataLocation)
 
+    @Query("SELECT * FROM ride_location WHERE location_id = :locationId")
+    fun getRideDataLocationById(locationId: Int): RideDataLocation
+
     @Query("SELECT * FROM ride_location")
     fun getAllRideLocationData(): MutableList<RideDataLocation>
 

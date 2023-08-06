@@ -8,7 +8,6 @@ import android.widget.Button
 import android.widget.ImageView
 import android.widget.Toast
 import si.um.feri.cycling_tracker_app.R
-import si.um.feri.cycling_tracker_app.models.RideData
 import si.um.feri.cycling_tracker_app.utils.AppDatabase
 
 class SettingsActivity : AppCompatActivity() {
@@ -73,9 +72,9 @@ class SettingsActivity : AppCompatActivity() {
             this.appDatabase.rideDataDao().delete(it)
         }
 
-        var rideLocationDatas = this.appDatabase.rideDataLocation().getAllRideLocationData()
+        var rideLocationDatas = this.appDatabase.rideDataLocationDao().getAllRideLocationData()
         rideLocationDatas.forEach {
-            this.appDatabase.rideDataLocation().delete(it)
+            this.appDatabase.rideDataLocationDao().delete(it)
         }
 
         Toast.makeText(this, R.string.cleared_data, Toast.LENGTH_SHORT).show()

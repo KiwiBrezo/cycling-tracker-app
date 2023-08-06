@@ -14,7 +14,9 @@ import si.um.feri.cycling_tracker_app.grpc.AddLocationRequest
 import si.um.feri.cycling_tracker_app.grpc.AddRideLocationServiceGrpcKt
 import si.um.feri.cycling_tracker_app.grpc.AddRideRequest
 import si.um.feri.cycling_tracker_app.grpc.AddRideServiceGrpcKt
+import si.um.feri.cycling_tracker_app.models.events.LocationIsUploadedEvent
 import si.um.feri.cycling_tracker_app.models.events.LocationUploadEvent
+import si.um.feri.cycling_tracker_app.models.events.RideIsUploadedEvent
 import si.um.feri.cycling_tracker_app.models.events.RideUploadEvent
 
 class RideUploadService : Service() {
@@ -63,6 +65,7 @@ class RideUploadService : Service() {
 
             if (response.isUploaded > 0) {
                 Log.i("GRPC RIDE UPLOAD", "Ride was successfully uploaded")
+                EventBus.getDefault().post(RideIsUploadedEvent(rideUploadEvent.ride_id))
             } else {
                 Log.i("GRPC RIDE UPLOAD", "There was an error while uploading the ride data")
             }
@@ -84,6 +87,7 @@ class RideUploadService : Service() {
 
             if (response.isUploaded > 0) {
                 Log.i("GRPC LOCATION UPLOAD", "Ride location was successfully uploaded")
+                EventBus.getDefault().post(LocationIsUploadedEvent(locationUploadEvent.location_id))
             } else {
                 Log.i("GRPC LOCATION UPLOAD", "There was an error while uploading the ride location")
             }

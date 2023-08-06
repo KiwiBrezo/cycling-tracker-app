@@ -261,7 +261,7 @@ class RideActivity : AppCompatActivity() {
 
             if (this.rideData != null) {
                 val rideLocation = rideManager.saveRideLocation(this.rideData!!.ride_id, this.userData!!.user_id, currentLocation!!.latitude, currentLocation!!.longitude)
-                EventBus.getDefault().post(LocationUploadEvent(ride_id = rideLocation.ride_id, timestamp = rideLocation.timestamp, longitude = rideLocation.longitude, latitude = rideLocation.latitude))
+                EventBus.getDefault().post(LocationUploadEvent(location_id = rideLocation.location_id, ride_id = rideLocation.ride_id, timestamp = rideLocation.timestamp, longitude = rideLocation.longitude, latitude = rideLocation.latitude))
             }
         }
     }

@@ -38,8 +38,6 @@ class MainActivity : AppCompatActivity() {
             startActivity(intent)
         } else {
             this.appController.startServices()
-            var rideLocationManager = RideManager.getInstance(this)
-            rideLocationManager.checkForNotEndedRide()
         }
     }
 

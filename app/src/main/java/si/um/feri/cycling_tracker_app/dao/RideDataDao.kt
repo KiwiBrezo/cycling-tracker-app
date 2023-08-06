@@ -26,4 +26,7 @@ interface RideDataDao {
 
     @Query("SELECT * FROM ride WHERE is_active = 1")
     fun getActiveRide(): RideData
+
+    @Query("SELECT * FROM ride WHERE is_uploaded = 0")
+    fun getAllNotUploaded(): MutableList<RideData>
 }

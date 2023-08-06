@@ -63,7 +63,11 @@ class LoginActivity : AppCompatActivity() {
 
     private fun bindComponents() {
         loginBtn.setOnClickListener {
-            loginUser()
+            if (this.appController.isNetworkAvailable(this)) {
+                loginUser()
+            } else {
+                Toast.makeText(this, R.string.no_internet_connection, Toast.LENGTH_SHORT).show()
+            }
         }
     }
 

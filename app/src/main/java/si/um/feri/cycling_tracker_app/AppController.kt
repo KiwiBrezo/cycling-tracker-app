@@ -3,9 +3,12 @@ package si.um.feri.cycling_tracker_app
 import android.Manifest
 import android.app.Activity
 import android.app.Application
+import android.content.Context
 import android.content.Intent
 import android.content.pm.PackageManager
-import android.util.Log
+import android.net.ConnectivityManager
+import android.net.NetworkCapabilities
+import android.os.Build
 import androidx.core.app.ActivityCompat
 import org.greenrobot.eventbus.EventBus
 import org.greenrobot.eventbus.Subscribe
@@ -65,18 +68,15 @@ class AppController : Application() {
     }
 
     private fun handleAndUploadRideAndLocations() {
-        val notUploadedLocations = this.rideManager.getAllRideLocationsNotUploaded()
-        notUploadedLocations.forEach {
+        this.rideManager.getAllRideLocationsNotUploaded().forEach {
             EventBus.getDefault().post(LocationUploadEvent(location_id = it.location_id, ride_id = it.ride_id, timestamp = it.timestamp, longitude = it.longitude, latitude = it.latitude))
         }
 
-        val notUploadedRides = this.rideManager.getAllRidesNotUploaded()
-        notUploadedRides.forEach {
+        this.rideManager.getAllFinishedRidesNotUploaded().forEach {
             EventBus.getDefault().post(RideUploadEvent(ride_id = it.ride_id, user_id = it.user_id, duration = it.duration, timeStart = it.timeStart, timeStop = it.timeStop))
         }
 
-        val notUploadedRideLocations = this.rideManager.checkForNotEndedRide()
-        notUploadedRideLocations.forEach {
+        this.rideManager.checkForNotEndedRide().forEach {
             EventBus.getDefault().post(LocationUploadEvent(location_id = it.location_id, ride_id = it.ride_id, timestamp = it.timestamp, longitude = it.longitude, latitude = it.latitude))
         }
     }
@@ -178,6 +178,33 @@ class AppController : Application() {
                 this.writeExternalStorage
     }
 
+    fun isNetworkAvailable(context: Context?): Boolean {
+        if (context == null) return false
+        val connectivityManager = context.getSystemService(Context.CONNECTIVITY_SERVICE) as ConnectivityManager
+        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.Q) {
+            val capabilities = connectivityManager.getNetworkCapabilities(connectivityManager.activeNetwork)
+            if (capabilities != null) {
+                when {
+                    capabilities.hasTransport(NetworkCapabilities.TRANSPORT_CELLULAR) -> {
+                        return true
+                    }
+                    capabilities.hasTransport(NetworkCapabilities.TRANSPORT_WIFI) -> {
+                        return true
+                    }
+                    capabilities.hasTransport(NetworkCapabilities.TRANSPORT_ETHERNET) -> {
+                        return true
+                    }
+                }
+            }
+        } else {
+            val activeNetworkInfo = connectivityManager.activeNetworkInfo
+            if (activeNetworkInfo != null && activeNetworkInfo.isConnected) {
+                return true
+            }
+        }
+        return false
+    }
+
     @Subscribe(threadMode = ThreadMode.MAIN)
     fun rideIsUploaded(rideIsUploadedEvent: RideIsUploadedEvent) {
         this.rideManager.setRideStatusToUploaded(rideIsUploadedEvent.rideId)
@@ -186,5 +213,18 @@ class AppController : Application() {
     @Subscribe(threadMode = ThreadMode.MAIN)
     fun rideLocationIsUploaded(locationIsUploadedEvent: LocationIsUploadedEvent) {
         this.rideManager.setRideLocationStatusToUploaded(locationIsUploadedEvent.locationId)
+    }
+
+    @Subscribe(threadMode = ThreadMode.MAIN)
+    fun backOnlineTryUpload(backOnlineEvent: BackOnlineEvent) {
+        if (backOnlineEvent.isOnline) {
+            this.rideManager.getAllRideLocationsNotUploaded().forEach {
+                EventBus.getDefault().post(LocationUploadEvent(location_id = it.location_id, ride_id = it.ride_id, timestamp = it.timestamp, longitude = it.longitude, latitude = it.latitude))
+            }
+
+            this.rideManager.getAllFinishedRidesNotUploaded().forEach {
+                EventBus.getDefault().post(RideUploadEvent(ride_id = it.ride_id, user_id = it.user_id, duration = it.duration, timeStart = it.timeStart, timeStop = it.timeStop))
+            }
+        }
     }
 }

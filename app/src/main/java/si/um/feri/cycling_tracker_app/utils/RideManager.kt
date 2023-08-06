@@ -101,8 +101,8 @@ class RideManager private constructor(context: Context) {
         return this.rideDatabase.rideDataLocationDao().getAllRideLocationDataNotUploaded()
     }
 
-    fun getAllRidesNotUploaded(): MutableList<RideData> {
-        return this.rideDatabase.rideDataDao().getAllNotUploaded()
+    fun getAllFinishedRidesNotUploaded(): MutableList<RideData> {
+        return this.rideDatabase.rideDataDao().getAllNotUploadedAndIsFinished()
     }
 
     fun setRideLocationStatusToUploaded(locationId: Int): RideDataLocation {

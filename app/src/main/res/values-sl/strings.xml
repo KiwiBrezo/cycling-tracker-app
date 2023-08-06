@@ -21,4 +21,7 @@
     <string name="delete_ride_check">Ali ste prepričani da izbrišete vožnjo?</string>
     <string name="empty_username_or_password">Majnkajoče uporabniško ime ali geslo</string>
     <string name="failed_login">Napaka pri prijavi v sistem!</string>
+    <string name="no_internet_connection">Ni povezave z internetom, poskušam s ponovno povezavo...</string>
+    <string name="lost_connection">Izgubili ste povezavo z internetom...</string>
+    <string name="connected_back">Povezani ste nazaj na internet!</string>
 </resources>

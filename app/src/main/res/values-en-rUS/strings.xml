@@ -21,4 +21,7 @@
     <string name="delete_ride_check">Are you sure to delete the ride?</string>
     <string name="empty_username_or_password">There is no username or password</string>
     <string name="failed_login">Failed to log into the system!</string>
+    <string name="no_internet_connection">There is no internet connection, try to reconect...</string>
+    <string name="lost_connection">Your app has no more internet connection...</string>
+    <string name="connected_back">Your app is back online!</string>
 </resources>

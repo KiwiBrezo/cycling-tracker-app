@@ -148,6 +148,11 @@ class RideActivity : AppCompatActivity() {
         stopBtn.setOnClickListener {
             stopAndResetTimerView()
         }
+
+        settingsBtn.setOnClickListener {
+            val intent = Intent(this, SettingsActivity::class.java)
+            startActivity(intent)
+        }
     }
 
     private fun startOrStopButtonClicked() {
@@ -166,7 +171,6 @@ class RideActivity : AppCompatActivity() {
         rideTrackerHandler = Handler(Looper.getMainLooper())
         timerStatusChecker.run()
         if (!rideHasStarted) {
-            // TODO
             this.rideData = this.rideManager.startRideLocation(userData!!.user_id, System.currentTimeMillis())
             this.rideHasStarted = true
         }

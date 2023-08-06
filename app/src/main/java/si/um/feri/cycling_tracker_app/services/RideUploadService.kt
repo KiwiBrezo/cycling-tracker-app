@@ -97,7 +97,8 @@ class RideUploadService : Service() {
 
     private fun connectToGrpcServer() {
         try {
-            this.chanel = ManagedChannelBuilder.forAddress("10.0.2.2", 8081).usePlaintext().build()
+            //this.chanel = ManagedChannelBuilder.forAddress("10.0.2.2", 8081).usePlaintext().build()
+            this.chanel = ManagedChannelBuilder.forAddress("164.8.9.88", 18081).usePlaintext().build()
             this.rideStub = AddRideServiceGrpcKt.AddRideServiceCoroutineStub(this.chanel)
             this.locationStub = AddRideLocationServiceGrpcKt.AddRideLocationServiceCoroutineStub(this.chanel)
         } catch (e: Exception) {

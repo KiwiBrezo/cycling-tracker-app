@@ -8,7 +8,7 @@ import androidx.recyclerview.widget.RecyclerView
 import si.um.feri.cycling_tracker_app.R
 import si.um.feri.cycling_tracker_app.adapters.holder.RideCardData
 
-class RideCardAdapter(private val mList: List<RideCardData>) : RecyclerView.Adapter<RideCardAdapter.ViewHolder>() {
+class RideCardAdapter(private val mList: MutableList<RideCardData>) : RecyclerView.Adapter<RideCardAdapter.ViewHolder>() {
 
     private var onClickListener: OnClickListener? = null
 
@@ -20,6 +20,7 @@ class RideCardAdapter(private val mList: List<RideCardData>) : RecyclerView.Adap
 
     interface OnClickListener {
         fun onClick(position: Int, model: RideCardData)
+        fun onLongClick(position: Int, model: RideCardData)
     }
 
     override fun onCreateViewHolder(parent: ViewGroup, viewType: Int): ViewHolder {
@@ -44,6 +45,13 @@ class RideCardAdapter(private val mList: List<RideCardData>) : RecyclerView.Adap
             if (onClickListener != null) {
                 onClickListener!!.onClick(position, rideCardModel)
             }
+        }
+
+        holder.itemView.setOnLongClickListener {
+            if (onClickListener != null) {
+                onClickListener!!.onLongClick(position, rideCardModel)
+            }
+            return@setOnLongClickListener true
         }
     }
 

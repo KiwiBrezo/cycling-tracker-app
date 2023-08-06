@@ -15,4 +15,9 @@
     <string name="loading_location">Loading your last known location...</string>
     <string name="no_rides">You have no ride right now :( Go for some ride !</string>
     <string name="cleared_data">Seccesfully cleared local data.</string>
+    <string name="approve">Yes</string>
+    <string name="not_approve">No</string>
+    <string name="delete_ride_check">Are you sure to delete the ride?</string>
+    <string name="empty_username_or_password">There is no username or password</string>
+    <string name="failed_login">Failed to log into the system!</string>
 </resources>

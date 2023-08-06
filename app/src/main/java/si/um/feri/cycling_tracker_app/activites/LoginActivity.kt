@@ -72,7 +72,7 @@ class LoginActivity : AppCompatActivity() {
         val password = this.passwordInput.text.toString()
 
         if (userneme.isEmpty() || password.isEmpty()) {
-            Toast.makeText(this, "There is no username or password", Toast.LENGTH_SHORT).show()
+            Toast.makeText(this, R.string.empty_username_or_password, Toast.LENGTH_SHORT).show()
             return
         }
 
@@ -94,7 +94,7 @@ class LoginActivity : AppCompatActivity() {
 
         client.newCall(request).execute().use { response ->
             if (response.code() != 200) {
-                Toast.makeText(this, "Failed to log into the system!", Toast.LENGTH_SHORT).show()
+                Toast.makeText(this, R.string.failed_login, Toast.LENGTH_SHORT).show()
                 return
             }
 

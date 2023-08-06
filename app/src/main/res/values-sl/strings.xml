@@ -16,4 +16,9 @@
     <string name="loading_location">Nalaganje vaše zadnje lokacije...</string>
     <string name="no_rides">Nimate še preteklih voženj :( Pojdite kolesarit!</string>
     <string name="cleared_data">Uspešno počiščena lokalna baza.</string>
+    <string name="approve">Da</string>
+    <string name="not_approve">Ne</string>
+    <string name="delete_ride_check">Ali ste prepričani da izbrišete vožnjo?</string>
+    <string name="empty_username_or_password">Majnkajoče uporabniško ime ali geslo</string>
+    <string name="failed_login">Napaka pri prijavi v sistem!</string>
 </resources>

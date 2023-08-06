@@ -1,5 +1,7 @@
 package si.um.feri.cycling_tracker_app.activites
 
+import android.app.AlertDialog
+import android.content.DialogInterface
 import android.content.Intent
 import android.os.Bundle
 import android.widget.Toast
@@ -12,8 +14,6 @@ import si.um.feri.cycling_tracker_app.adapters.holder.RideCardData
 import si.um.feri.cycling_tracker_app.models.RideData
 import si.um.feri.cycling_tracker_app.utils.AppDatabase
 import si.um.feri.cycling_tracker_app.utils.DateTimeUtils
-import java.text.SimpleDateFormat
-import java.util.Calendar
 
 class RidesActivity : AppCompatActivity() {
     private lateinit var recyclerview: RecyclerView
@@ -36,7 +36,7 @@ class RidesActivity : AppCompatActivity() {
         this.recyclerview = findViewById(R.id.recyclerview)
         this.recyclerview.layoutManager = LinearLayoutManager(this)
 
-        val rideDataHolders = ArrayList<RideCardData>()
+        val rideDataHolders = mutableListOf<RideCardData>()
         for (i in 1..allRides.size) {
             rideDataHolders.add(RideCardData(
                 allRides[i - 1].ride_id,
@@ -52,6 +52,29 @@ class RidesActivity : AppCompatActivity() {
                 val intent = Intent(this@RidesActivity, ShowRideActivity::class.java)
                 intent.putExtra("ride_id", model.rideId)
                 startActivity(intent)
+            }
+
+            override fun onLongClick(position: Int, model: RideCardData) {
+                val checkIfSureDialog: AlertDialog? = this@RidesActivity.let {
+                    val builder = AlertDialog.Builder(it)
+                    builder.apply {
+                        setMessage(R.string.delete_ride_check)
+                        setPositiveButton(R.string.approve,
+                            DialogInterface.OnClickListener { dialog, id ->
+                                val ride = appDatabase.rideDataDao().getRideById(model.rideId)
+                                appDatabase.rideDataDao().delete(ride)
+                                rideDataHolders.removeAt(position)
+                                rideCardAdapter.notifyDataSetChanged()
+                            })
+                        setNegativeButton(R.string.not_approve,
+                            DialogInterface.OnClickListener { dialog, id ->
+                                // Nothing
+                            })
+                    }
+                    builder.create()
+                }
+
+                checkIfSureDialog!!.show()
             }
         })
 
